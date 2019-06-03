@@ -5,7 +5,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Model.DTO.Race
 {
     public class CreateRaceDTO
     {
-        public string Name { get; set; }
+        public string Description { get; set; }
         public DateTime Date { get; set; }
         public int RaceTypeId { get; set; }
         public int TotalLaps { get; set; }

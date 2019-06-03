@@ -31,13 +31,16 @@ namespace Yagohf.Gympass.RaceAnalyser.Injector
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IRaceRepository, RaceRepository>();
             services.AddScoped<IRaceTypeRepository, RaceTypeRepository>();
+            services.AddScoped<ILapRepository, LapRepository>();
 
             //Data - Query
             services.AddScoped<IUserQuery, UserQuery>();
             services.AddScoped<IRaceQuery, RaceQuery>();
+            services.AddScoped<IRaceTypeQuery, RaceTypeQuery>();
 
             //Service - Helper
             services.AddScoped<ITokenHelper, TokenHelper>();
+            services.AddScoped<IRaceFileHelper, RaceFileHelper>();
 
             //Service - Domain
             services.AddScoped<IUserService, UserService>();

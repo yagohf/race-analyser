@@ -41,17 +41,21 @@ namespace Yagohf.Gympass.RaceAnalyser.Api
             {
                 //Filters.
                 config.Filters.Add<ApiExceptionFilter>();
-            });//.SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            });
 
             //Adicionar injeção de dependência delegada para outra camada.
             services.AddInjectorBootstrapper(this.Configuration);
 
             //Setar configurações fortemente tipadas.
-            var autenticacaoSection = Configuration.GetSection("Authentication");
-            services.Configure<AuthenticationSettings>(autenticacaoSection);
+            var authSection = Configuration.GetSection("Authentication");
+            services.Configure<AuthenticationSettings>(authSection);
+
+            //Setar configurações fortemente tipadas.
+            var raceFileSettingsSection = Configuration.GetSection("RaceFile");
+            services.Configure<RaceFileSettings>(raceFileSettingsSection);
 
             //Configurar autenticação com JWT.
-            AuthenticationSettings authSettings = autenticacaoSection.Get<AuthenticationSettings>();
+            AuthenticationSettings authSettings = authSection.Get<AuthenticationSettings>();
             byte[] encriptionKey = Encoding.ASCII.GetBytes(authSettings.EncriptionKey);
             services.AddAuthentication(x =>
             {

@@ -2,7 +2,7 @@
 {
     public class BusinessException : System.Exception
     {
-        public BusinessException(string mensagem) : base(mensagem)
+        public BusinessException(string message) : base(message)
         {
 
         }

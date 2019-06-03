@@ -20,6 +20,8 @@ namespace Yagohf.Gympass.RaceAnalyser.Data.Repositories
             this._context = context;
         }
 
+        #region [ Async ]
+
         public async Task UpdateAsync(T entity)
         {
             this._context.Entry<T>(entity).State = EntityState.Modified;
@@ -63,6 +65,88 @@ namespace Yagohf.Gympass.RaceAnalyser.Data.Repositories
 
             return new Listing<T>(await items, new Paging(pageNumber, await totalItems, itemsPerPage));
         }
+
+        public async Task<T> GetSingleAsync(IQuery<T> query)
+        {
+            return await this.PrepareQuery(query).SingleOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<T>> ListAllAsync()
+        {
+            return await this.ListAsync(null);
+        }
+
+        public async Task<bool> ExistsAsync(IQuery<T> query)
+        {
+            return await this.PrepareQuery(query).AnyAsync();
+        }
+
+        #endregion
+
+        #region [ Sync ]
+
+        public void Update(T entity)
+        {
+            this._context.Entry<T>(entity).State = EntityState.Modified;
+            this._context.SaveChanges();
+            this._context.Entry<T>(entity).State = EntityState.Detached;
+        }
+
+        public int Count(IQuery<T> query)
+        {
+            var preparedQuery = this.PrepareQuery(query);
+            return preparedQuery.Count();
+        }
+
+        public void Insert(T entity)
+        {
+            this._context.Set<T>().Add(entity);
+            this._context.SaveChanges();
+        }
+
+        public void Delete(int id)
+        {
+            T entity = this._context.Set<T>().Find(id);
+            this._context.Set<T>().Remove(entity);
+            this._context.SaveChanges();
+        }
+
+        public void Delete(T entity)
+        {
+            this.Delete(entity.Id);
+        }
+
+        public IEnumerable<T> List(IQuery<T> query)
+        {
+            return this.PrepareQuery(query).ToList();
+        }
+
+        public Listing<T> ListPaging(IQuery<T> query, int pageNumber, int itemsPerPage)
+        {
+            var totalItems = this.Count(query);
+            var items = this.PrepareQuery(query, pageNumber, itemsPerPage).ToList();
+
+            return new Listing<T>(items, new Paging(pageNumber, totalItems, itemsPerPage));
+        }
+
+        public T GetSingle(IQuery<T> query)
+        {
+            return this.PrepareQuery(query).SingleOrDefault();
+        }
+
+        public IEnumerable<T> ListAll()
+        {
+            return this.List(null);
+        }
+
+        public bool Exists(IQuery<T> query)
+        {
+            return this.PrepareQuery(query).Any();
+        }
+
+        #endregion
+
+        #region [ Helpers ]
 
         private IQueryable<T> PrepareQuery(IQuery<T> query)
         {
@@ -134,19 +218,6 @@ namespace Yagohf.Gympass.RaceAnalyser.Data.Repositories
             return preparedQuery.PrepareQueryToPaging(pageNumber, itemsPerPage);
         }
 
-        public async Task<T> GetSingleAsync(IQuery<T> query)
-        {
-            return await this.PrepareQuery(query).SingleOrDefaultAsync();
-        }
-
-        public async Task<IEnumerable<T>> ListAllAsync()
-        {
-            return await this.ListAsync(null);
-        }
-
-        public async Task<bool> ExistsAsync(IQuery<T> query)
-        {
-            return await this.PrepareQuery(query).AnyAsync();
-        }
+        #endregion
     }
 }
