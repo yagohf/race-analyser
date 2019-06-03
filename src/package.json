@@ -1,0 +1,7 @@
+{
+    "scripts": {
+        "start": "concurrently \"npm run serve-api\" \"npm run serve\"",
+        "serve": "cd frontend && ng serve",
+        "serve-api": "cd backend && nodemon server.js"
+    }
+}
