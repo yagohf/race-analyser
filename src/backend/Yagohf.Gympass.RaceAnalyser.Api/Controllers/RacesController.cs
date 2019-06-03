@@ -25,7 +25,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Api.Controllers
 
         /// <summary>
         /// Consulta uma lista de resumos de corridas a partir de alguns parâmetros, sempre
-        /// em ordem decrescente de data. Permite paginação.
+        /// em ordem decrescente de data de realização. Permite paginação.
         /// </summary>
         /// <param name="description">Descrição das corridas.</param>
         /// <param name="uploader">Usuário que fez o upload das corridas.</param>
