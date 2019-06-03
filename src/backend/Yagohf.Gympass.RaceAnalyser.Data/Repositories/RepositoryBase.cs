@@ -20,59 +20,59 @@ namespace Yagohf.Gympass.RaceAnalyser.Data.Repositories
             this._context = context;
         }
 
-        public async Task AtualizarAsync(T entidade)
+        public async Task UpdateAsync(T entity)
         {
-            this._context.Entry<T>(entidade).State = EntityState.Modified;
+            this._context.Entry<T>(entity).State = EntityState.Modified;
             await this._context.SaveChangesAsync();
-            this._context.Entry<T>(entidade).State = EntityState.Detached;
+            this._context.Entry<T>(entity).State = EntityState.Detached;
         }
 
-        public async Task<int> ContarAsync(IQuery<T> query)
+        public async Task<int> CountAsync(IQuery<T> query)
         {
-            var queryPreparada = this.PrepararQuery(query);
-            return await queryPreparada.CountAsync();
+            var preparedQuery = this.PrepareQuery(query);
+            return await preparedQuery.CountAsync();
         }
 
-        public async Task InserirAsync(T entidade)
+        public async Task InsertAsync(T entity)
         {
-            await this._context.Set<T>().AddAsync(entidade);
-            await this._context.SaveChangesAsync();
-        }
-
-        public async Task ExcluirAsync(int id)
-        {
-            T entidade = await this._context.Set<T>().FindAsync(id);
-            this._context.Set<T>().Remove(entidade);
+            await this._context.Set<T>().AddAsync(entity);
             await this._context.SaveChangesAsync();
         }
 
-        public async Task ExcluirAsync(T entidade)
+        public async Task DeleteAsync(int id)
         {
-            await this.ExcluirAsync(entidade.Id);
+            T entity = await this._context.Set<T>().FindAsync(id);
+            this._context.Set<T>().Remove(entity);
+            await this._context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<T>> ListarAsync(IQuery<T> query)
+        public async Task DeleteAsync(T entity)
         {
-            return await this.PrepararQuery(query).ToListAsync();
+            await this.DeleteAsync(entity.Id);
         }
 
-        public async Task<Listing<T>> ListarPaginandoAsync(IQuery<T> query, int pagina, int qtdRegistrosPorPagina)
+        public async Task<IEnumerable<T>> ListAsync(IQuery<T> query)
         {
-            var qtdRegistros = this.ContarAsync(query);
-            var registros = this.PrepararQuery(query, pagina, qtdRegistrosPorPagina).ToListAsync();
-
-            return new Listing<T>(await registros, new Paging(pagina, await qtdRegistros, qtdRegistrosPorPagina));
+            return await this.PrepareQuery(query).ToListAsync();
         }
 
-        private IQueryable<T> PrepararQuery(IQuery<T> query)
+        public async Task<Listing<T>> ListPagingAsync(IQuery<T> query, int pageNumber, int itemsPerPage)
         {
-            IQueryable<T> queryPrincipal = this._context.Set<T>().AsNoTracking();
+            var totalItems = this.CountAsync(query);
+            var items = this.PrepareQuery(query, pageNumber, itemsPerPage).ToListAsync();
+
+            return new Listing<T>(await items, new Paging(pageNumber, await totalItems, itemsPerPage));
+        }
+
+        private IQueryable<T> PrepareQuery(IQuery<T> query)
+        {
+            IQueryable<T> mainQuery = this._context.Set<T>().AsNoTracking();
             if (query != null)
             {
                 if (query.Includes.Any())
                 {
                     // Montar um IQueryable<T> com todos os includes explícitos.
-                    queryPrincipal = query.Includes
+                    mainQuery = query.Includes
                     .Aggregate(this._context.Set<T>().AsQueryable(),
                         (current, include) => current.Include(include));
                 }
@@ -80,8 +80,8 @@ namespace Yagohf.Gympass.RaceAnalyser.Data.Repositories
                 if (query.IncludeStrings.Any())
                 {
                     // Adicionar os includes de strings.
-                    queryPrincipal = query.IncludeStrings
-                        .Aggregate(queryPrincipal,
+                    mainQuery = query.IncludeStrings
+                        .Aggregate(mainQuery,
                             (current, include) => current.Include(include));
                 }
 
@@ -90,63 +90,63 @@ namespace Yagohf.Gympass.RaceAnalyser.Data.Repositories
                 {
                     foreach (var criteria in query.Criteria)
                     {
-                        queryPrincipal = queryPrincipal.Where(criteria);
+                        mainQuery = mainQuery.Where(criteria);
                     }
                 }
 
                 //Tratar ordenação.
-                if (query.OrderBy != null)
+                if (query.SortExpressions != null)
                 {
-                    queryPrincipal = PrepararOrdenacao(query, queryPrincipal);
+                    mainQuery = PrepareSorting(query, mainQuery);
                 }
             }
 
-            return queryPrincipal;
+            return mainQuery;
         }
 
-        private IQueryable<T> PrepararOrdenacao(IQuery<T> query, IQueryable<T> queryPrincipal)
+        private IQueryable<T> PrepareSorting(IQuery<T> query, IQueryable<T> mainQuery)
         {
-            if (query.OrderBy != null && query.OrderBy.Any())
+            if (query.SortExpressions != null && query.SortExpressions.Any())
             {
-                IOrderedQueryable<T> queryOrdenar = queryPrincipal as IOrderedQueryable<T>;
-                for (int i = 0; i < query.OrderBy.Count; i++)
+                IOrderedQueryable<T> queryToSort = mainQuery as IOrderedQueryable<T>;
+                for (int i = 0; i < query.SortExpressions.Count; i++)
                 {
-                    var order = query.OrderBy[i];
+                    var order = query.SortExpressions[i];
                     if (order.Descending)
                     {
-                        queryOrdenar = i == 0 ? queryOrdenar.OrderByDescending(order.Expression) : queryOrdenar.ThenByDescending(order.Expression);
+                        queryToSort = i == 0 ? queryToSort.OrderByDescending(order.Expression) : queryToSort.ThenByDescending(order.Expression);
                     }
                     else
                     {
-                        queryOrdenar = i == 0 ? queryOrdenar.OrderBy(order.Expression) : queryOrdenar.ThenBy(order.Expression);
+                        queryToSort = i == 0 ? queryToSort.OrderBy(order.Expression) : queryToSort.ThenBy(order.Expression);
                     }
                 }
 
-                return queryOrdenar as IQueryable<T>;
+                return queryToSort as IQueryable<T>;
             }
 
-            return queryPrincipal;
+            return mainQuery;
         }
 
-        private IQueryable<T> PrepararQuery(IQuery<T> query, int pagina, int qtdRegistrosPorPagina)
+        private IQueryable<T> PrepareQuery(IQuery<T> query, int pageNumber, int itemsPerPage)
         {
-            IQueryable<T> queryPreparada = this.PrepararQuery(query);
-            return queryPreparada.PrepareQueryToPaging(pagina, qtdRegistrosPorPagina);
+            IQueryable<T> preparedQuery = this.PrepareQuery(query);
+            return preparedQuery.PrepareQueryToPaging(pageNumber, itemsPerPage);
         }
 
-        public async Task<T> SelecionarUnicoAsync(IQuery<T> query)
+        public async Task<T> GetSingleAsync(IQuery<T> query)
         {
-            return await this.PrepararQuery(query).SingleOrDefaultAsync();
+            return await this.PrepareQuery(query).SingleOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<T>> ListarTodosAsync()
+        public async Task<IEnumerable<T>> ListAllAsync()
         {
-            return await this.ListarAsync(null);
+            return await this.ListAsync(null);
         }
 
-        public async Task<bool> ExisteAsync(IQuery<T> query)
+        public async Task<bool> ExistsAsync(IQuery<T> query)
         {
-            return await this.PrepararQuery(query).AnyAsync();
+            return await this.PrepareQuery(query).AnyAsync();
         }
     }
 }

@@ -4,8 +4,8 @@ namespace Yagohf.Gympass.RaceAnalyser.Data.Interface.Queries
 {
     public interface IUserQuery
     {
-        IQuery<User> PorId(int id);
-        IQuery<User> PorUsuario(string usuario);
-        IQuery<User> PorUsuarioSenha(string usuario, string senha);
+        IQuery<User> ById(int id);
+        IQuery<User> ByLogin(string login);
+        IQuery<User> ByLoginAndPass(string login, string password);
     }
 }

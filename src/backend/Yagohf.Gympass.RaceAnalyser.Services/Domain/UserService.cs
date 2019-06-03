@@ -31,7 +31,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
             if (string.IsNullOrEmpty(auth.Login) || string.IsNullOrEmpty(auth.Password))
                 throw new BusinessException("Usuário ou senha inválidos");
 
-            User user = await this._userRepository.SelecionarUnicoAsync(this._userQuery.PorUsuarioSenha(auth.Login, auth.Password));
+            User user = await this._userRepository.GetSingleAsync(this._userQuery.ByLoginAndPass(auth.Login, auth.Password));
             if (user == null)
                 throw new BusinessException("Usuário ou senha inválidos");
 
@@ -44,18 +44,18 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
 
             if (string.IsNullOrEmpty(registration.Login) || string.IsNullOrEmpty(registration.Password) || string.IsNullOrEmpty(registration.Name))
                 throw new BusinessException("Dados incompletos para registrar o usuário");
-            else if (await this._userRepository.ExisteAsync(this._userQuery.PorUsuario(registration.Login)))
+            else if (await this._userRepository.ExistsAsync(this._userQuery.ByLogin(registration.Login)))
                 throw new BusinessException("Esse nome de usuário não está disponível para registro");
 
             newUser.Password = newUser.Password.ToCipherText();
-            await this._userRepository.InserirAsync(newUser);
+            await this._userRepository.InsertAsync(newUser);
             return this._mapper.Map<UserDTO>(newUser);
         }
 
         public async Task<UserDTO> GetByIdAsync(int id)
         {
-            User User = await this._userRepository.SelecionarUnicoAsync(this._userQuery.PorId(id));
-            return this._mapper.Map<UserDTO>(User);
+            User user = await this._userRepository.GetSingleAsync(this._userQuery.ById(id));
+            return this._mapper.Map<UserDTO>(user);
         }
     }
 }

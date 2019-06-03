@@ -8,7 +8,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Data.Queries
 {
     public class Query<T> : IQuery<T> where T : class
     {
-        public string Identificador { get; private set; }
+        public string Identifier { get; private set; }
 
         public List<Expression<Func<T, bool>>> Criteria { get; private set; }
 
@@ -16,48 +16,48 @@ namespace Yagohf.Gympass.RaceAnalyser.Data.Queries
 
         public List<string> IncludeStrings { get; private set; }
 
-        public List<SortExpression<T>> OrderBy { get; private set; }
+        public List<SortExpression<T>> SortExpressions { get; private set; }
 
         public Query()
         {
-            this.Identificador = Guid.NewGuid().ToString();
+            this.Identifier = Guid.NewGuid().ToString();
             this.Criteria = new List<Expression<Func<T, bool>>>();
             this.Includes = new List<Expression<Func<T, object>>>();
             this.IncludeStrings = new List<string>();
-            this.OrderBy = new List<SortExpression<T>>();
+            this.SortExpressions = new List<SortExpression<T>>();
         }
 
-        public IQuery<T> Filtrar(Expression<Func<T, bool>> filtro)
+        public IQuery<T> Filter(Expression<Func<T, bool>> filterExpression)
         {
-            this.Criteria.Add(filtro);
+            this.Criteria.Add(filterExpression);
             return this;
         }
 
-        public IQuery<T> AdicionarInclude(Expression<Func<T, object>> include)
+        public IQuery<T> AddInclude(Expression<Func<T, object>> include)
         {
             this.Includes.Add(include);
             return this;
         }
 
-        public IQuery<T> AdicionarInclude(string include)
+        public IQuery<T> AddInclude(string include)
         {
             this.IncludeStrings.Add(include);
             return this;
         }
 
-        public IQuery<T> OrdenarPor(Expression<Func<T, object>> expression)
+        public IQuery<T> SortBy(Expression<Func<T, object>> sortExpression)
         {
-            return this.Ordenar(expression, false);
+            return this.Ordenar(sortExpression, false);
         }
 
-        public IQuery<T> OrdenarPorDescendente(Expression<Func<T, object>> expression)
+        public IQuery<T> SortByDescending(Expression<Func<T, object>> sortByDescendingExpression)
         {
-            return this.Ordenar(expression, true);
+            return this.Ordenar(sortByDescendingExpression, true);
         }
 
-        private IQuery<T> Ordenar(Expression<Func<T, object>> expression, bool descendente)
+        private IQuery<T> Ordenar(Expression<Func<T, object>> expression, bool descending)
         {
-            this.OrderBy.Add(new SortExpression<T>(expression, descendente));
+            this.SortExpressions.Add(new SortExpression<T>(expression, descending));
             return this;
         }
 
@@ -74,12 +74,12 @@ namespace Yagohf.Gympass.RaceAnalyser.Data.Queries
             if (obj == null)
                 return false;
 
-            return (obj as Query<T>).Identificador.Equals(this.Identificador, StringComparison.OrdinalIgnoreCase);
+            return (obj as Query<T>).Identifier.Equals(this.Identifier, StringComparison.OrdinalIgnoreCase);
         }
 
         public override int GetHashCode()
         {
-            return 96025222 + EqualityComparer<string>.Default.GetHashCode(Identificador);
+            return 96025222 + EqualityComparer<string>.Default.GetHashCode(Identifier);
         }
     }
 }

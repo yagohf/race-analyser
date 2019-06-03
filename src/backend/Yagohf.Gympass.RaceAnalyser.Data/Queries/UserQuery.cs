@@ -6,22 +6,22 @@ namespace Yagohf.Gympass.RaceAnalyser.Data.Queries
 {
     public class UserQuery : IUserQuery
     {
-        public IQuery<User> PorId(int id)
+        public IQuery<User> ById(int id)
         {
             return new Query<User>()
-                 .Filtrar(x => x.Id == id);
+                 .Filter(x => x.Id == id);
         }
 
-        public IQuery<User> PorUsuario(string usuario)
+        public IQuery<User> ByLogin(string login)
         {
             return new Query<User>()
-                .Filtrar(x => x.Login == usuario);
+                .Filter(x => x.Login == login);
         }
 
-        public IQuery<User> PorUsuarioSenha(string usuario, string senha)
+        public IQuery<User> ByLoginAndPass(string login, string password)
         {
             return new Query<User>()
-                .Filtrar(x => x.Login == usuario && x.Password == senha.ToCipherText());
+                .Filter(x => x.Login == login && x.Password == password.ToCipherText());
         }
     }
 }

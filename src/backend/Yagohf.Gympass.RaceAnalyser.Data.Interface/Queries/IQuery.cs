@@ -7,16 +7,16 @@ namespace Yagohf.Gympass.RaceAnalyser.Data.Interface.Queries
 {
     public interface IQuery<T> where T : class
     {
-        string Identificador { get; }
+        string Identifier { get; }
         List<Expression<Func<T, bool>>> Criteria { get; }
         List<Expression<Func<T, object>>> Includes { get; }
         List<string> IncludeStrings { get; }
-        List<SortExpression<T>> OrderBy { get; }
+        List<SortExpression<T>> SortExpressions { get; }
 
-        IQuery<T> Filtrar(Expression<Func<T, bool>> filtro);
-        IQuery<T> AdicionarInclude(Expression<Func<T, object>> include);
-        IQuery<T> AdicionarInclude(string include);
-        IQuery<T> OrdenarPor(Expression<Func<T, object>> expression);
-        IQuery<T> OrdenarPorDescendente(Expression<Func<T, object>> expression);
+        IQuery<T> Filter(Expression<Func<T, bool>> filterExpression);
+        IQuery<T> AddInclude(Expression<Func<T, object>> include);
+        IQuery<T> AddInclude(string include);
+        IQuery<T> SortBy(Expression<Func<T, object>> sortExpression);
+        IQuery<T> SortByDescending(Expression<Func<T, object>> sortByDescendingExpression);
     }
 }
