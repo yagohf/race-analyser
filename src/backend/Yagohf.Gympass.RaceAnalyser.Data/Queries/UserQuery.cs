@@ -6,12 +6,6 @@ namespace Yagohf.Gympass.RaceAnalyser.Data.Queries
 {
     public class UserQuery : IUserQuery
     {
-        public IQuery<User> ById(int id)
-        {
-            return new Query<User>()
-                 .Filter(x => x.Id == id);
-        }
-
         public IQuery<User> ByLogin(string login)
         {
             return new Query<User>()

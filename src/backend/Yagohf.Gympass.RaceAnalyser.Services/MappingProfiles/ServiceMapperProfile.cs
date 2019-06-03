@@ -18,7 +18,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.MappingProfiles
 
         private void MapearEntidadesParaDTOs()
         {
-
+            CreateMap<User, UserDTO>();
         }
 
         private void MapearDTOsParaEntidades()

@@ -7,6 +7,6 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Interface.Domain
     {
         Task<TokenDTO> GenerateTokenAsync(AuthenticationDTO authentication);
         Task<UserDTO> RegisterAsync(RegistrationDTO registration);
-        Task<UserDTO> GetByIdAsync(int id);
+        Task<UserDTO> GetByLoginAsync(string login);
     }
 }

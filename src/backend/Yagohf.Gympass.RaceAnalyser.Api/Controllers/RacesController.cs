@@ -13,7 +13,6 @@ using Yagohf.Gympass.RaceAnalyser.Services.Interface.Domain;
 namespace Yagohf.Gympass.RaceAnalyser.Api.Controllers
 {
     [Route("api/v1/[controller]")]
-    [Authorize]
     public class RacesController : Controller
     {
         private readonly IRaceService _raceService;
@@ -32,7 +31,6 @@ namespace Yagohf.Gympass.RaceAnalyser.Api.Controllers
         /// <param name="page">Página da listagem a ser exibida.</param>
         [HttpGet]
         [SwaggerResponse(200, typeof(Listing<RaceSummaryDTO>))]
-        [SwaggerResponse(401)]
         public async Task<IActionResult> Get(string description, string uploader, int? page)
         {
             return Ok(await this._raceService.ListSummaryAsync(description, uploader, page));
@@ -54,23 +52,19 @@ namespace Yagohf.Gympass.RaceAnalyser.Api.Controllers
         /// </summary>
         /// <param name="file">Arquivo com os resultados da corrida.</param>
         /// <param name="model">Dados da corrida.</param>
-        [AllowAnonymous]
         [HttpPost]
         [SwaggerResponse(201, typeof(RaceResultDTO))]
-        public async Task<IActionResult> Post(IFormFile file)
+        [Authorize]
+        public async Task<IActionResult> Post([FromBody]CreateRaceDTO model)
         {
             //TODO - substituir por model binding customizado, que permite enviar IFormFile junto com uma model.
             MemoryStream ms = new MemoryStream();
-            await file.OpenReadStream().CopyToAsync(ms);
-            CreateRaceDTO model = new CreateRaceDTO()
+            using (FileStream fs = new FileStream(@"C:\Dev\race-analyser\src\simulations\ITALY_1.txt", FileMode.Open))
             {
-                Date = DateTime.Now,
-                Name = $"Race { DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") }",
-                RaceTypeId = 1,
-                TotalLaps = new Random().Next(1, 5),
-                ResultsFile = ms
-            };
+                await fs.CopyToAsync(ms);
+            }
 
+            model.ResultsFile = ms;
             RaceResultDTO raceResult = await this._raceService.AnalyseAsync(model, this.GetLoggedUser());
             return CreatedAtAction(nameof(GetResultById), new { id = raceResult.RaceId }, raceResult);
         }

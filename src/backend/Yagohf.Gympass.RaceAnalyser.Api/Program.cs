@@ -22,7 +22,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Api
 
         public static void Main(string[] args)
         {
-            ConfigurarSerilog();
+            ConfigSerilog();
 
             try
             {
@@ -51,7 +51,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Api
         }
 
         #region [ Helpers ]
-        private static void ConfigurarSerilog()
+        private static void ConfigSerilog()
         {
             var serilogColumnOptions = new ColumnOptions();
 

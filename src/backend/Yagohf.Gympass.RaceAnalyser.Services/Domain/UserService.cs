@@ -52,9 +52,9 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
             return this._mapper.Map<UserDTO>(newUser);
         }
 
-        public async Task<UserDTO> GetByIdAsync(int id)
+        public async Task<UserDTO> GetByLoginAsync(string login)
         {
-            User user = await this._userRepository.GetSingleAsync(this._userQuery.ById(id));
+            User user = await this._userRepository.GetSingleAsync(this._userQuery.ByLogin(login));
             return this._mapper.Map<UserDTO>(user);
         }
     }
