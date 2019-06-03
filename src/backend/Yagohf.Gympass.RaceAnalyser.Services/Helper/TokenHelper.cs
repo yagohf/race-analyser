@@ -5,7 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Yagohf.Gympass.RaceAnalyser.Infrastructure.Configuration;
-using Yagohf.Gympass.RaceAnalyser.Model.DTO;
+using Yagohf.Gympass.RaceAnalyser.Model.DTO.Authentication;
 using Yagohf.Gympass.RaceAnalyser.Services.Interface.Helper;
 
 namespace Yagohf.Gympass.RaceAnalyser.Services.Helper

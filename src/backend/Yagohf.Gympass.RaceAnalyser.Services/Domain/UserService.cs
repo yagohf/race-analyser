@@ -4,7 +4,7 @@ using Yagohf.Gympass.RaceAnalyser.Data.Interface.Queries;
 using Yagohf.Gympass.RaceAnalyser.Data.Interface.Repositories;
 using Yagohf.Gympass.RaceAnalyser.Infrastructure.Exception;
 using Yagohf.Gympass.RaceAnalyser.Infrastructure.Extensions;
-using Yagohf.Gympass.RaceAnalyser.Model.DTO;
+using Yagohf.Gympass.RaceAnalyser.Model.DTO.Authentication;
 using Yagohf.Gympass.RaceAnalyser.Model.Entities;
 using Yagohf.Gympass.RaceAnalyser.Services.Interface.Domain;
 using Yagohf.Gympass.RaceAnalyser.Services.Interface.Helper;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Yagohf.Gympass.RaceAnalyser.Model.DTO
+namespace Yagohf.Gympass.RaceAnalyser.Model.DTO.Race
 {
     public class RaceResultDTO
     {

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Yagohf.Gympass.RaceAnalyser.Model.DTO;
+using Yagohf.Gympass.RaceAnalyser.Model.DTO.Authentication;
 using Yagohf.Gympass.RaceAnalyser.Model.Entities;
 
 namespace Yagohf.Gympass.RaceAnalyser.Services.MappingProfiles

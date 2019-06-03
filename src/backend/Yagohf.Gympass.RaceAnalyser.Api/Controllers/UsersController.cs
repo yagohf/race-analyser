@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Threading.Tasks;
-using Yagohf.Gympass.RaceAnalyser.Model.DTO;
+using Yagohf.Gympass.RaceAnalyser.Model.DTO.Authentication;
 using Yagohf.Gympass.RaceAnalyser.Services.Interface.Domain;
 
 namespace Yagohf.Gympass.RaceAnalyser.Api.Controllers

@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Yagohf.Gympass.RaceAnalyser.Model.DTO
+namespace Yagohf.Gympass.RaceAnalyser.Model.DTO.Race
 {
     public class DriverResultDTO
     {

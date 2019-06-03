@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Yagohf.Gympass.RaceAnalyser.Model.DTO
+namespace Yagohf.Gympass.RaceAnalyser.Model.DTO.Race
 {
     public class BestLapDTO
     {

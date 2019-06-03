@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Yagohf.Gympass.RaceAnalyser.Model.DTO;
+using Yagohf.Gympass.RaceAnalyser.Model.DTO.Authentication;
 
 namespace Yagohf.Gympass.RaceAnalyser.Services.Interface.Domain
 {
