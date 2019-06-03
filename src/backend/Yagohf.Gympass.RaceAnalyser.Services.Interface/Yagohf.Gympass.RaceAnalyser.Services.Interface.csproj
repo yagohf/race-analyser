@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Yagohf.Gympass.RaceAnalyser.Infrastructure\Yagohf.Gympass.RaceAnalyser.Infrastructure.csproj" />
     <ProjectReference Include="..\Yagohf.Gympass.RaceAnalyser.Model\Yagohf.Gympass.RaceAnalyser.Model.csproj" />
   </ItemGroup>
 

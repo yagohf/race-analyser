@@ -13,9 +13,9 @@ namespace Yagohf.Gympass.RaceAnalyser.Api.Controllers
     {
         private readonly IUserService _userService;
 
-        public UsersController(IUserService usuarioBusiness)
+        public UsersController(IUserService userService)
         {
-            this._userService = usuarioBusiness;
+            this._userService = userService;
         }
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Api.Controllers
         /// <param name="id">Identificador único do usuário.</param>
         [HttpGet("{id}")]
         [SwaggerResponse(200, typeof(UserDTO))]
-        public async Task<IActionResult> GetPorId(int id)
+        public async Task<IActionResult> GetById(int id)
         {
             return Ok(await this._userService.GetByIdAsync(id));
         }
@@ -38,8 +38,8 @@ namespace Yagohf.Gympass.RaceAnalyser.Api.Controllers
         [SwaggerResponse(201, typeof(UserDTO))]
         public async Task<IActionResult> Post([FromBody]RegistrationDTO model)
         {
-            UserDTO usuarioCriado = await this._userService.RegisterAsync(model);
-            return CreatedAtAction(nameof(GetPorId), new { id = usuarioCriado.Id }, usuarioCriado);
+            UserDTO newUser = await this._userService.RegisterAsync(model);
+            return CreatedAtAction(nameof(GetById), new { id = newUser.Id }, newUser);
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Api.Controllers
         [AllowAnonymous]
         [HttpPost("token")]
         [SwaggerResponse(201, typeof(UserDTO))]
-        public async Task<IActionResult> PostAutenticacao([FromBody]AuthenticationDTO model)
+        public async Task<IActionResult> PostAuth([FromBody]AuthenticationDTO model)
         {
             TokenDTO token = await this._userService.GenerateTokenAsync(model);
             return Ok(token);

@@ -2,7 +2,7 @@
 
 namespace Yagohf.Gympass.RaceAnalyser.Model.DTO.Race
 {
-    public class RaceResumeDTO
+    public class RaceSummaryDTO
     {
         public int RaceId { get; set; }
         public string RaceName { get; set; }
