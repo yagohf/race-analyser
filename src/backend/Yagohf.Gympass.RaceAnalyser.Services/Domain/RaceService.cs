@@ -101,16 +101,16 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
             return result;
         }
 
-        public async Task<Listing<RaceSummaryDTO>> ListSummaryAsync(string description, string uploader, int? page)
+        public async Task<Listing<RaceSummaryDTO>> ListSummaryAsync(string description, int? page)
         {
             Listing<Race> listagem;
             if (page.HasValue)
             {
-                listagem = await this._raceRepository.ListPagingAsync(this._raceQuery.ByDescriptionOrUploader(description, uploader), page.Value, 10);
+                listagem = await this._raceRepository.ListPagingAsync(this._raceQuery.ByDescription(description), page.Value, 10);
             }
             else
             {
-                listagem = new Listing<Race>(await this._raceRepository.ListAsync(this._raceQuery.ByDescriptionOrUploader(description, uploader)));
+                listagem = new Listing<Race>(await this._raceRepository.ListAsync(this._raceQuery.ByDescription(description)));
             }
 
             return listagem.Map<Race, RaceSummaryDTO>(this._mapper);

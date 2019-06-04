@@ -27,13 +27,12 @@ namespace Yagohf.Gympass.RaceAnalyser.Api.Controllers
         /// em ordem decrescente de data de realização. Permite paginação.
         /// </summary>
         /// <param name="description">Descrição das corridas.</param>
-        /// <param name="uploader">Usuário que fez o upload das corridas.</param>
         /// <param name="page">Página da listagem a ser exibida.</param>
         [HttpGet]
         [SwaggerResponse(200, typeof(Listing<RaceSummaryDTO>))]
-        public async Task<IActionResult> Get(string description, string uploader, int? page)
+        public async Task<IActionResult> Get(string description, int? page)
         {
-            return Ok(await this._raceService.ListSummaryAsync(description, uploader, page));
+            return Ok(await this._raceService.ListSummaryAsync(description, page));
         }
 
         /// <summary>

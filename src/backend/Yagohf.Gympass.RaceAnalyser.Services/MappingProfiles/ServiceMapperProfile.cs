@@ -27,6 +27,9 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.MappingProfiles
                 .ForMember(dto => dto.RaceId, opt => opt.MapFrom(race => race.Id))
                 .ForMember(dto => dto.RaceDescription, opt => opt.MapFrom(race => race.Description))
                 .ForMember(dto => dto.RaceDate, opt => opt.MapFrom(race => race.Date))
+                .ForMember(dto => dto.RaceTypeId, opt => opt.MapFrom(race => race.RaceTypeId))
+                .ForMember(dto => dto.RaceTypeDescription, opt => opt.MapFrom(race => race.RaceType.Name))
+                .ForMember(dto => dto.Uploader, opt => opt.MapFrom(race => race.Uploader.Name))
                 .ForMember(dto => dto.Winner, opt => opt.MapFrom(race => race.DriverResults.OrderBy(dr => dr.Position).Select(x => $"{x.DriverNumber} - {x.DriverName}").First()));
         }
 

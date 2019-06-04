@@ -2,3 +2,7 @@
 .dropdown-item {
     cursor: pointer;
 }
+
+th {
+    text-align: center;
+}

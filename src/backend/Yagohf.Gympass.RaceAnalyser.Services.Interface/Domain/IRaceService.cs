@@ -17,10 +17,9 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Interface.Domain
         /// Obtém uma lista de corridas (resumidas) através de múltiplos parâmetros.
         /// </summary>
         /// <param name="description">Descrição da corrida.</param>
-        /// <param name="uploader">ID do usuário que enviou a análise.</param>
         /// <param name="page">Página da consulta.</param>
         /// <returns>Lista de corridas (resumidas).</returns>
-        Task<Listing<RaceSummaryDTO>> ListSummaryAsync(string description, string uploader, int? page);
+        Task<Listing<RaceSummaryDTO>> ListSummaryAsync(string description, int? page);
 
         /// <summary>
         /// Analisa os resultados de uma corrida, disponibilizando para os demais usuários
