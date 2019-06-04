@@ -74,9 +74,10 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
         {
             //Recuperar usuário da corrida.
             User user = await this._userRepository.GetSingleAsync(this._userQuery.ByLogin(uploader));
+            int raceId = 0;
 
-            using (var ts = new TransactionScope())
-            {
+            //using (var ts = new TransactionScope())
+            //{
                 //Salvar corrida.
                 Race race = new Race();
                 race.Date = createData.Date;
@@ -95,10 +96,11 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
                 }
 
                 //Commitar transação.
-                ts.Complete();
+                //ts.Complete();
+                raceId = race.Id;
+            //}
 
-                return await this.GetResultByIdAsync(race.Id);
-            }
+            return await this.GetResultByIdAsync(raceId);
         }
 
         private bool ValidateRequiredFields(CreateRaceDTO createData, out string requiredFieldsErrorMessage)

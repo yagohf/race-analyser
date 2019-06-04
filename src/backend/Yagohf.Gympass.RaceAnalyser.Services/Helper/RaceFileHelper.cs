@@ -15,12 +15,12 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Helper
     {
         private List<Lap> _results;
         private int _currentLine;
-        private readonly IOptions<RaceFileSettings> _options;
+        private readonly RaceFileSettings _settings;
 
         public RaceFileHelper(IOptions<RaceFileSettings> options)
         {
             this._results = new List<Lap>();
-            this._options = options;
+            this._settings = options.Value;
         }
 
         public bool Success { get; private set; }
@@ -31,7 +31,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Helper
         {
             this._results = new List<Lap>();
             this._currentLine = 1;
-            file.Position = 0;
+            file.Position = 0; //Rebobinar o stream.
             bool success = true;
 
             using (StreamReader sr = new StreamReader(file))
@@ -61,71 +61,29 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Helper
             Lap lap = new Lap();
             StringBuilder sb = new StringBuilder();
 
-            if (lineContent.Length < this._options.Value.LineMinLength)
+            if (lineContent.Length < this._settings.LineMinLength)
             {
                 sb.Append($"A linha {this._currentLine} não tem o tamanho correto;");
             }
             else
             {
                 //Time.
-                try
-                {
-                    lap.Date = DateTime.Parse(lineContent.Substring(this._options.Value.Date.Start, this._options.Value.Date.Length));
-                }
-                catch
-                {
-                    sb.Append($"Linha: {this._currentLine} / Campo: Hora - dado inválido;");
-                }
+                ReadTime(lineContent, lap, sb);
 
                 //Driver number.
-                try
-                {
-                    lap.DriverNumber = int.Parse(lineContent.Substring(this._options.Value.DriverNumber.Start, this._options.Value.DriverNumber.Length).Trim());
-                }
-                catch
-                {
-                    sb.Append($"Linha: {this._currentLine} / Campo: Piloto (número) - dado inválido;");
-                }
+                ReadDriverNumber(lineContent, lap, sb);
 
                 //Driver name.
-                try
-                {
-                    lap.DriverName = lineContent.Substring(this._options.Value.DriverName.Start, this._options.Value.DriverName.Length).Trim();
-                }
-                catch
-                {
-                    sb.Append($"Linha: {this._currentLine} / Campo: Piloto (nome) - dado inválido;");
-                }
+                ReadDriverName(lineContent, lap, sb);
 
                 //Lap number.
-                try
-                {
-                    lap.Number = int.Parse(lineContent.Substring(this._options.Value.LapNumber.Start, this._options.Value.LapNumber.Length).Trim());
-                }
-                catch
-                {
-                    sb.Append($"Linha: {this._currentLine} / Campo: Nº Volta - dado inválido;");
-                }
+                ReadLapNumber(lineContent, lap, sb);
 
                 //Lap time.
-                try
-                {
-                    lap.Time = TimeSpan.ParseExact(lineContent.Substring(this._options.Value.LapTime.Start, this._options.Value.LapTime.Length), new string[] { @"m\:ss\.fff", @"m\:ss\.ff" }, CultureInfo.InvariantCulture);
-                }
-                catch
-                {
-                    sb.Append($"Linha: {this._currentLine} / Campo: Tempo Volta - dado inválido;");
-                }
+                ReadLapTime(lineContent, lap, sb);
 
                 //Lap average speed.
-                try
-                {
-                    lap.AverageSpeed = decimal.Parse(lineContent.Substring(this._options.Value.LapAverageSpeed.Start, this._options.Value.LapAverageSpeed.Length).Trim());
-                }
-                catch
-                {
-                    sb.Append($"Linha: {this._currentLine} / Campo: Velocidade Média da Volta - dado inválido;");
-                }               
+                ReadLapAverageSpeed(lineContent, lap, sb);
             }
 
             if (string.IsNullOrEmpty(sb.ToString()))
@@ -136,6 +94,62 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Helper
             {
                 this.ErrorMessage += sb.ToString();
                 return null;
+            }
+        }
+
+        private void ReadTime(string lineContent, Lap lap, StringBuilder sb)
+        {
+            if (DateTime.TryParse(lineContent.Substring(this._settings.Date.Start, this._settings.Date.Length), out DateTime time))
+                lap.Date = time;
+            else
+                sb.Append($"Linha: {this._currentLine} / Campo: Hora - dado inválido;");
+        }
+
+        private void ReadDriverNumber(string lineContent, Lap lap, StringBuilder sb)
+        {
+            if (int.TryParse(lineContent.Substring(this._settings.DriverNumber.Start, this._settings.DriverNumber.Length).Trim(), out int driverNumber))
+                lap.DriverNumber = driverNumber;
+            else
+                sb.Append($"Linha: {this._currentLine} / Campo: Piloto (número) - dado inválido;");
+        }
+
+        private void ReadDriverName(string lineContent, Lap lap, StringBuilder sb)
+        {
+            string driverName = lineContent.Substring(this._settings.DriverName.Start, this._settings.DriverName.Length).Trim();
+            if (!string.IsNullOrEmpty(driverName))
+                lap.DriverName = driverName;
+            else
+                sb.Append($"Linha: {this._currentLine} / Campo: Piloto (nome) - dado inválido;");
+        }
+        private void ReadLapNumber(string lineContent, Lap lap, StringBuilder sb)
+        {
+            if (int.TryParse(lineContent.Substring(this._settings.LapNumber.Start, this._settings.LapNumber.Length).Trim(), out int lapNumber))
+                lap.Number = lapNumber;
+            else
+                sb.Append($"Linha: {this._currentLine} / Campo: Nº Volta - dado inválido;");
+        }
+
+        private void ReadLapTime(string lineContent, Lap lap, StringBuilder sb)
+        {
+            if (TimeSpan.TryParseExact(lineContent.Substring(this._settings.LapTime.Start, this._settings.LapTime.Length), new string[] { @"m\:ss\.fff", @"m\:ss\.ff" }, CultureInfo.InvariantCulture, out TimeSpan time))
+                lap.Time = time;
+            else
+                sb.Append($"Linha: {this._currentLine} / Campo: Tempo Volta - dado inválido;");
+        }
+
+        private void ReadLapAverageSpeed(string lineContent, Lap lap, StringBuilder sb)
+        {
+            try
+            {
+                string avgSpeed = lineContent.Substring(this._settings.LapAverageSpeed.Start).Trim();
+                if (avgSpeed.Length < this._settings.LapAverageSpeed.Length)
+                    avgSpeed.PadRight(this._settings.LapAverageSpeed.Length, '0');
+
+                lap.AverageSpeed = decimal.Parse(avgSpeed);
+            }
+            catch
+            {
+                sb.Append($"Linha: {this._currentLine} / Campo: Velocidade Média da Volta - dado inválido;");
             }
         }
     }
