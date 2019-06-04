@@ -19,7 +19,8 @@ BEGIN
 		[UploaderId] INT NOT NULL,
 		[UploadDate] DATETIME NOT NULL,
 		CONSTRAINT PK_Race PRIMARY KEY CLUSTERED ([Id]),
-		CONSTRAINT FK_Race_Uploader FOREIGN KEY (UploaderId) REFERENCES [dbo].[User]([Id])
+		CONSTRAINT FK_Race_Uploader FOREIGN KEY ([UploaderId]) REFERENCES [dbo].[User]([Id]),
+		CONSTRAINT FK_Race_RaceType FOREIGN KEY ([RaceTypeId]) REFERENCES [dbo].[RaceType]([Id])
 	);
 END
 GO

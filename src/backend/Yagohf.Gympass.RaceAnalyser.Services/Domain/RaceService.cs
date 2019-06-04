@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
 using Yagohf.Gympass.RaceAnalyser.Data.Interface.Queries;
 using Yagohf.Gympass.RaceAnalyser.Data.Interface.Repositories;
 using Yagohf.Gympass.RaceAnalyser.Infrastructure.Exception;
@@ -173,39 +174,40 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
             //Recuperar usuário da corrida.
             User user = await this._userRepository.GetSingleAsync(this._userQuery.ByLogin(uploader));
 
-            //using (var ts = new TransactionScope())
-            //{
-            //Salvar corrida.
-            Race race = new Race();
-            race.Date = createData.Date;
-            race.Description = createData.Description;
-            race.TotalLaps = createData.TotalLaps;
-            race.UploadDate = DateTime.Now;
-            race.UploaderId = user.Id;
-
-            await this._raceRepository.InsertAsync(race);
-
-            //Salvar cada uma das voltas após atualizar o ID da corrida.
-            foreach (var lap in laps)
+            using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                lap.RaceId = race.Id;
-                await this._lapRepository.InsertAsync(lap);
+                //Salvar corrida.
+                Race race = new Race();
+                race.Date = createData.Date;
+                race.Description = createData.Description;
+                race.TotalLaps = createData.TotalLaps;
+                race.UploadDate = DateTime.Now;
+                race.UploaderId = user.Id;
+                race.RaceTypeId = createData.RaceTypeId;
+
+                await this._raceRepository.InsertAsync(race);
+
+                //Salvar cada uma das voltas após atualizar o ID da corrida.
+                foreach (var lap in laps)
+                {
+                    lap.RaceId = race.Id;
+                    await this._lapRepository.InsertAsync(lap);
+                }
+
+                //Processar o resultado dos pilotos e persistir resultados.
+                IEnumerable<DriverResult> driverResults = this.ProcessDriverResults(laps);
+                foreach (var driverResult in driverResults)
+                {
+                    driverResult.RaceId = race.Id;
+                    await this._driverResultRepository.InsertAsync(driverResult);
+                }
+
+                //Commitar transação.
+                ts.Complete();
+
+                //Devolver ID para o chamador.
+                return race.Id;
             }
-
-            //Processar o resultado dos pilotos e persistir resultados.
-            IEnumerable<DriverResult> driverResults = this.ProcessDriverResults(laps);
-            foreach (var driverResult in driverResults)
-            {
-                driverResult.RaceId = race.Id;
-                await this._driverResultRepository.InsertAsync(driverResult);
-            }
-
-            //Commitar transação.
-            //ts.Complete();
-
-            //Devolver ID para o chamador.
-            return race.Id;
-            //}
         }
 
         private IEnumerable<DriverResult> ProcessDriverResults(IEnumerable<Lap> laps)
@@ -228,7 +230,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
                 driverResults.Add(result);
             }
 
-            driverResults = driverResults.OrderByDescending(dr => dr.Laps).ThenBy(dr=> dr.TotalRaceTime).ToList();
+            driverResults = driverResults.OrderByDescending(dr => dr.Laps).ThenBy(dr => dr.TotalRaceTime).ToList();
 
             //Preencher posição e gap.
             for (int i = 0; i < driverResults.Count; i++)
