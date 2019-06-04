@@ -11,13 +11,13 @@ using Yagohf.Gympass.RaceAnalyser.Services.Interface.Helper;
 
 namespace Yagohf.Gympass.RaceAnalyser.Services.Helper
 {
-    public class RaceFileHelper : IRaceFileHelper
+    public class RaceFileReader : IRaceFileReader
     {
         private List<Lap> _results;
         private int _currentLine;
         private readonly RaceFileSettings _settings;
 
-        public RaceFileHelper(IOptions<RaceFileSettings> options)
+        public RaceFileReader(IOptions<RaceFileSettings> options)
         {
             this._results = new List<Lap>();
             this._settings = options.Value;
@@ -27,7 +27,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Helper
         public string ErrorMessage { get; private set; }
         public IEnumerable<Lap> Results { get { return this._results; } }
 
-        public async Task Process(Stream file)
+        public async Task Read(Stream file)
         {
             this._results = new List<Lap>();
             this._currentLine = 1;
@@ -41,7 +41,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Helper
                     string lineContent = await sr.ReadLineAsync();
                     if (this._currentLine > 1)
                     {
-                        Lap lap = this.ProcessLine(lineContent);
+                        Lap lap = this.ReadLine(lineContent);
 
                         if (lap != null)
                             this._results.Add(lap);
@@ -56,7 +56,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Helper
             this.Success = success;
         }
 
-        private Lap ProcessLine(string lineContent)
+        private Lap ReadLine(string lineContent)
         {
             Lap lap = new Lap();
             StringBuilder sb = new StringBuilder();
@@ -68,22 +68,22 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Helper
             else
             {
                 //Time.
-                ReadTime(lineContent, lap, sb);
+                ExtractTime(lineContent, lap, sb);
 
                 //Driver number.
-                ReadDriverNumber(lineContent, lap, sb);
+                ExtractDriverNumber(lineContent, lap, sb);
 
                 //Driver name.
-                ReadDriverName(lineContent, lap, sb);
+                ExtractDriverName(lineContent, lap, sb);
 
                 //Lap number.
-                ReadLapNumber(lineContent, lap, sb);
+                ExtractLapNumber(lineContent, lap, sb);
 
                 //Lap time.
-                ReadLapTime(lineContent, lap, sb);
+                ExtractLapTime(lineContent, lap, sb);
 
                 //Lap average speed.
-                ReadLapAverageSpeed(lineContent, lap, sb);
+                ExtractLapAverageSpeed(lineContent, lap, sb);
             }
 
             if (string.IsNullOrEmpty(sb.ToString()))
@@ -97,7 +97,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Helper
             }
         }
 
-        private void ReadTime(string lineContent, Lap lap, StringBuilder sb)
+        private void ExtractTime(string lineContent, Lap lap, StringBuilder sb)
         {
             if (DateTime.TryParse(lineContent.Substring(this._settings.Date.Start, this._settings.Date.Length), out DateTime time))
                 lap.Date = time;
@@ -105,7 +105,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Helper
                 sb.Append($"Linha: {this._currentLine} / Campo: Hora - dado inválido;");
         }
 
-        private void ReadDriverNumber(string lineContent, Lap lap, StringBuilder sb)
+        private void ExtractDriverNumber(string lineContent, Lap lap, StringBuilder sb)
         {
             if (int.TryParse(lineContent.Substring(this._settings.DriverNumber.Start, this._settings.DriverNumber.Length).Trim(), out int driverNumber))
                 lap.DriverNumber = driverNumber;
@@ -113,7 +113,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Helper
                 sb.Append($"Linha: {this._currentLine} / Campo: Piloto (número) - dado inválido;");
         }
 
-        private void ReadDriverName(string lineContent, Lap lap, StringBuilder sb)
+        private void ExtractDriverName(string lineContent, Lap lap, StringBuilder sb)
         {
             string driverName = lineContent.Substring(this._settings.DriverName.Start, this._settings.DriverName.Length).Trim();
             if (!string.IsNullOrEmpty(driverName))
@@ -121,7 +121,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Helper
             else
                 sb.Append($"Linha: {this._currentLine} / Campo: Piloto (nome) - dado inválido;");
         }
-        private void ReadLapNumber(string lineContent, Lap lap, StringBuilder sb)
+        private void ExtractLapNumber(string lineContent, Lap lap, StringBuilder sb)
         {
             if (int.TryParse(lineContent.Substring(this._settings.LapNumber.Start, this._settings.LapNumber.Length).Trim(), out int lapNumber))
                 lap.Number = lapNumber;
@@ -129,7 +129,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Helper
                 sb.Append($"Linha: {this._currentLine} / Campo: Nº Volta - dado inválido;");
         }
 
-        private void ReadLapTime(string lineContent, Lap lap, StringBuilder sb)
+        private void ExtractLapTime(string lineContent, Lap lap, StringBuilder sb)
         {
             if (TimeSpan.TryParseExact(lineContent.Substring(this._settings.LapTime.Start, this._settings.LapTime.Length), new string[] { @"m\:ss\.fff", @"m\:ss\.ff" }, CultureInfo.InvariantCulture, out TimeSpan time))
                 lap.Time = time;
@@ -137,7 +137,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Helper
                 sb.Append($"Linha: {this._currentLine} / Campo: Tempo Volta - dado inválido;");
         }
 
-        private void ReadLapAverageSpeed(string lineContent, Lap lap, StringBuilder sb)
+        private void ExtractLapAverageSpeed(string lineContent, Lap lap, StringBuilder sb)
         {
             try
             {

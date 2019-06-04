@@ -32,15 +32,16 @@ namespace Yagohf.Gympass.RaceAnalyser.Injector
             services.AddScoped<IRaceRepository, RaceRepository>();
             services.AddScoped<IRaceTypeRepository, RaceTypeRepository>();
             services.AddScoped<ILapRepository, LapRepository>();
-
+            services.AddScoped<IDriverResultRepository, DriverResultRepository>();
             //Data - Query
             services.AddScoped<IUserQuery, UserQuery>();
             services.AddScoped<IRaceQuery, RaceQuery>();
             services.AddScoped<IRaceTypeQuery, RaceTypeQuery>();
+            services.AddScoped<IDriverResultQuery, DriverResultQuery>();
 
             //Service - Helper
             services.AddScoped<ITokenHelper, TokenHelper>();
-            services.AddScoped<IRaceFileHelper, RaceFileHelper>();
+            services.AddScoped<IRaceFileReader, RaceFileReader>();
 
             //Service - Domain
             services.AddScoped<IUserService, UserService>();

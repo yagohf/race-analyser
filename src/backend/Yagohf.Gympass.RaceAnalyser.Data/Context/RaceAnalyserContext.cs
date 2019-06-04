@@ -16,6 +16,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Data.Context
             modelBuilder.ApplyConfiguration(new LapMapping());
             modelBuilder.ApplyConfiguration(new RaceTypeMapping());
             modelBuilder.ApplyConfiguration(new RaceMapping());
+            modelBuilder.ApplyConfiguration(new DriverResultMapping());
             base.OnModelCreating(modelBuilder);
         }
     }

@@ -5,11 +5,11 @@ using Yagohf.Gympass.RaceAnalyser.Model.Entities;
 
 namespace Yagohf.Gympass.RaceAnalyser.Services.Interface.Helper
 {
-    public interface IRaceFileHelper
+    public interface IRaceFileReader
     {
         bool Success { get; }
         string ErrorMessage { get; }
         IEnumerable<Lap> Results { get; }
-        Task Process(Stream file);
+        Task Read(Stream file);
     }
 }

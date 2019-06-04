@@ -44,6 +44,10 @@ namespace Yagohf.Gympass.RaceAnalyser.Data.Context.Configuration
             builder.HasMany(x => x.Laps)
                 .WithOne(x => x.Race)
                 .HasForeignKey(x => x.RaceId);
+
+            builder.HasMany(x => x.DriverResults)
+               .WithOne(x => x.Race)
+               .HasForeignKey(x => x.RaceId);
         }
     }
 }

@@ -16,5 +16,6 @@ namespace Yagohf.Gympass.RaceAnalyser.Model.Entities
         public ICollection<Lap> Laps { get; set; }
         public RaceType RaceType { get; set; }
         public User Uploader { get; set; }
+        public ICollection<DriverResult> DriverResults { get; set; }
     }
 }
