@@ -1,0 +1,16 @@
+<div class="container">
+    <div class="card card-container">
+        <img id="profile-img" class="profile-img-card" src="../../assets/avatar_2x.png" />
+        <p id="profile-name" class="profile-name-card">
+            Race Analyser - Login
+        </p>
+        <form class="form-signin" [formGroup]="formLogin" role="form" (ngSubmit)="submeterLogin()">
+            <input type="text" id="txtLogin" placeholder="Usuário" formControlName="user" class="form-control">
+            <input type="password" id="txtSenha" class="form-control" placeholder="Senha" formControlName="password">
+            <button type="submit" class="btn btn-lg btn-primary btn-block btn-signin" [ngClass]="{'disabled':logging}">
+                <i class="fa" [ngClass]="{'fa-user': !logging, 'fa-spinner fa-spin fa-fw':logging}"></i>
+                Entrar
+            </button>
+        </form>
+    </div>
+</div>

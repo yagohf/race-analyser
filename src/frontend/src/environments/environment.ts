@@ -3,7 +3,8 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  enderecoApi: 'http://localhost:57856/api/v1'
 };
 
 /*
