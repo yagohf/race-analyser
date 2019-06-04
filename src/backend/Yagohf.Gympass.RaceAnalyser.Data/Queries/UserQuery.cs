@@ -12,6 +12,13 @@ namespace Yagohf.Gympass.RaceAnalyser.Data.Queries
                 .Filter(x => x.Login == login);
         }
 
+        public IQuery<User> ByLoginWithRaces(string login)
+        {
+            return new Query<User>()
+                .Filter(x => x.Login == login)
+                .AddInclude(x => x.Races);
+        }
+
         public IQuery<User> ByLoginAndPass(string login, string password)
         {
             return new Query<User>()

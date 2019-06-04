@@ -20,7 +20,8 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.MappingProfiles
 
         private void MapEntitiesToDTOs()
         {
-            CreateMap<User, UserDTO>();
+            CreateMap<User, UserDTO>()
+                .ForMember(dto => dto.UploadedRaces, opt => opt.MapFrom(user => user.Races != null ? user.Races.Count : 0));
             CreateMap<DriverResult, DriverResultDTO>();
             CreateMap<Race, RaceSummaryDTO>()
                 .ForMember(dto => dto.RaceId, opt => opt.MapFrom(race => race.Id))

@@ -54,7 +54,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
 
         public async Task<UserDTO> GetByLoginAsync(string login)
         {
-            User user = await this._userRepository.GetSingleAsync(this._userQuery.ByLogin(login));
+            User user = await this._userRepository.GetSingleAsync(this._userQuery.ByLoginWithRaces(login));
             return this._mapper.Map<UserDTO>(user);
         }
     }
