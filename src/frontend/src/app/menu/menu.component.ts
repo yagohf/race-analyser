@@ -20,7 +20,7 @@ export class MenuComponent implements OnInit {
 
   logoff() {
     this.authenticationService.logout();
-    this.router.navigate(['/access']);
+    this.router.navigate(['/home']);
   }
 
   loggedUserInfo$: Observable<LoggedUser>;

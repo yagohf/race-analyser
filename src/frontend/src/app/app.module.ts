@@ -6,6 +6,8 @@ import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import { AccessComponent } from './access/access.component';
 import { HomeComponent } from './home/home.component';
+import { ResultsComponent } from './results/results.component';
+import { SubmitComponent } from './submit/submit.component';
 import { MessagesComponent } from './messages/messages.component';
 import { LoaderComponent } from './loader/loader.component';
 import { MenuComponent } from './menu/menu.component';
@@ -24,6 +26,8 @@ import { AppNgxbootsbundleModule } from './_ngxbundle/ngxbootstrapbundle.module'
     AppComponent,
     AccessComponent,
     HomeComponent,
+    ResultsComponent,
+    SubmitComponent,
     MenuComponent,
     MessagesComponent,
     LoaderComponent
