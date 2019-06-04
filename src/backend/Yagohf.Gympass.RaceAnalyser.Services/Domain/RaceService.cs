@@ -66,14 +66,14 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
             await this._raceFileReader.Read(createData.ResultsFile);
 
             //Tratar retorno.
-            if (this._raceFileReader.Success)
+            if (this.ValidatePostProcessing(out string postProcessingErrorMessage))
             {
                 int newRaceId = await this.ProcessAndSaveData(createData, uploader, this._raceFileReader.Results);
                 return await this.GetResultByIdAsync(newRaceId);
             }
             else
             {
-                throw new BusinessException(this._raceFileReader.ErrorMessage);
+                throw new BusinessException(postProcessingErrorMessage);
             }
         }
 
@@ -117,6 +117,57 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
 
         #region [ Helpers ]
 
+        private bool ValidatePostProcessing(out string postProcessingErrorMessage)
+        {
+            postProcessingErrorMessage = string.Empty;
+
+            if (this._raceFileReader.Success)
+            {
+                if (this._raceFileReader.Results == null || !this._raceFileReader.Results.Any())
+                {
+                    postProcessingErrorMessage = "Arquivo não possui dados para análise;";
+                }
+                else
+                {
+                    var duplicatedDriverNumber =
+                                                from driver in
+                                                (from l in this._raceFileReader.Results
+                                                 group l by new { l.DriverNumber, l.DriverName } into driverGrouping
+                                                 select driverGrouping)
+                                                group driver by driver.Key.DriverNumber into driverNumberGrouping
+                                                where driverNumberGrouping.Count() > 1
+                                                select driverNumberGrouping;
+
+                    if (duplicatedDriverNumber.Any())
+                    {
+                        postProcessingErrorMessage += "Existem pilotos diferentes com mesmo número: ";
+                        postProcessingErrorMessage += string.Join(",", duplicatedDriverNumber.Select(duplDriverNumber => $"Número: {duplDriverNumber.Key} / Pilotos: { string.Join(",", duplDriverNumber.Select(x => x.Key.DriverName)) }"));
+                        postProcessingErrorMessage += ";";
+                    }
+                    else
+                    {
+                        var duplicatedLapsToSameDriver = from l in this._raceFileReader.Results
+                                                         group l by new { l.DriverNumber, l.Number } into driverLapGrouping
+                                                         where driverLapGrouping.Count() > 1
+                                                         select driverLapGrouping;
+
+                        if (duplicatedLapsToSameDriver.Any())
+                        {
+                            postProcessingErrorMessage += "Existem voltas repetidas para o mesmo piloto: ";
+                            postProcessingErrorMessage += string.Join(",", duplicatedLapsToSameDriver.Select(duplLap => $"Piloto: {duplLap.Key.DriverNumber} / Volta: { duplLap.Key.Number }"));
+                            postProcessingErrorMessage += ";";
+                        }
+                    }
+                }
+            }
+            else
+            {
+                postProcessingErrorMessage = this._raceFileReader.ErrorMessage;
+            }
+
+            return string.IsNullOrEmpty(postProcessingErrorMessage);
+        }
+
         private async Task<int> ProcessAndSaveData(CreateRaceDTO createData, string uploader, IEnumerable<Lap> laps)
         {
             //Recuperar usuário da corrida.
@@ -141,7 +192,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
                 await this._lapRepository.InsertAsync(lap);
             }
 
-            //Processar o resultado dos pilotos e persistir.
+            //Processar o resultado dos pilotos e persistir resultados.
             IEnumerable<DriverResult> driverResults = this.ProcessDriverResults(laps);
             foreach (var driverResult in driverResults)
             {
@@ -159,7 +210,34 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
 
         private IEnumerable<DriverResult> ProcessDriverResults(IEnumerable<Lap> laps)
         {
-            return new List<DriverResult>();
+            List<DriverResult> driverResults = new List<DriverResult>();
+
+            var lapGrouping = from l in laps
+                              group l by new { l.DriverNumber, l.DriverName } into lapGroup
+                              select lapGroup;
+
+            foreach (var lapGroup in lapGrouping)
+            {
+                DriverResult result = new DriverResult();
+                result.AverageSpeed = lapGroup.Sum(l => l.AverageSpeed) / lapGroup.Count();
+                result.BestLap = lapGroup.OrderBy(l => l.Time).First().Time;
+                result.DriverName = lapGroup.Key.DriverName;
+                result.DriverNumber = lapGroup.Key.DriverNumber;
+                result.Laps = lapGroup.Count();
+                result.TotalRaceTime = lapGroup.Aggregate(TimeSpan.Zero, (current, next) => current + next.Time);
+                driverResults.Add(result);
+            }
+
+            driverResults = driverResults.OrderByDescending(dr => dr.Laps).ThenBy(dr=> dr.TotalRaceTime).ToList();
+
+            //Preencher posição e gap.
+            for (int i = 0; i < driverResults.Count; i++)
+            {
+                driverResults[i].Position = i + 1;
+                driverResults[i].Gap = i > 0 ? driverResults[i].TotalRaceTime - driverResults[i - 1].TotalRaceTime : (TimeSpan?)null;
+            }
+
+            return driverResults;
         }
 
         private bool ValidateRequiredFields(CreateRaceDTO createData, out string requiredFieldsErrorMessage)

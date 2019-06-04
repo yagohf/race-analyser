@@ -53,8 +53,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Data.Context.Configuration
                 .IsRequired();
 
             builder.Property(x => x.GapTicks)
-                .HasColumnName("GapTicks")
-                .IsRequired();
+                .HasColumnName("GapTicks");
 
             builder.Ignore(x => x.Gap);
         }
