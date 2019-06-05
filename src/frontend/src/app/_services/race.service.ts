@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpEventType } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { tap, map } from 'rxjs/operators';
 import { Listing } from '../_models/infrastructure/listing';
 import { RaceSummary } from '../_models/racesummary';
 import { RaceResult } from '../_models/raceresult';
@@ -31,5 +31,24 @@ export class RaceService {
             .pipe(
                 tap(_ => console.log(_))
             );
+    }
+
+    submit(formData: FormData) {
+        const url = `${environment.apiAddress}/races`;
+
+        return this.http.post(url, formData, {
+            reportProgress: true,
+            observe: 'events'
+        }).pipe(map((event) => {
+            switch (event.type) {
+                case HttpEventType.UploadProgress:
+                    const progress = Math.round(100 * event.loaded / event.total);
+                    return { status: 'progress', message: progress };
+                case HttpEventType.Response:
+                    return event.body;
+                default:
+                    return `Unhandled event: ${event.type}`;
+            }
+        }));
     }
 }
