@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Yagohf.Gympass.RaceAnalyser.Infrastructure.Model;
 using Yagohf.Gympass.RaceAnalyser.Infrastructure.Paging;
 using Yagohf.Gympass.RaceAnalyser.Model.DTO.Race;
 
@@ -26,8 +27,9 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Interface.Domain
         /// quando os dados são válidos.
         /// </summary>
         /// <param name="createData">Dados para criação da corrida.</param>
+        /// <param name="file">Arquivo da corrida.</param>
         /// <param name="uploader">Usuário fazendo upload da corrida para análise.</param>
         /// <returns>Resultado analisado da corrida.</returns>
-        Task<RaceResultDTO> AnalyseAsync(CreateRaceDTO createData, string uploader);
+        Task<RaceResultDTO> AnalyseAsync(CreateRaceDTO createData, FileDTO file, string uploader);
     }
 }

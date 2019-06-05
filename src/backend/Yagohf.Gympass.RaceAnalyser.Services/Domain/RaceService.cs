@@ -8,6 +8,7 @@ using Yagohf.Gympass.RaceAnalyser.Data.Interface.Queries;
 using Yagohf.Gympass.RaceAnalyser.Data.Interface.Repositories;
 using Yagohf.Gympass.RaceAnalyser.Infrastructure.Exception;
 using Yagohf.Gympass.RaceAnalyser.Infrastructure.Extensions;
+using Yagohf.Gympass.RaceAnalyser.Infrastructure.Model;
 using Yagohf.Gympass.RaceAnalyser.Infrastructure.Paging;
 using Yagohf.Gympass.RaceAnalyser.Model.DTO.Race;
 using Yagohf.Gympass.RaceAnalyser.Model.Entities;
@@ -55,16 +56,16 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
             this._mapper = mapper;
         }
 
-        public async Task<RaceResultDTO> AnalyseAsync(CreateRaceDTO createData, string uploader)
+        public async Task<RaceResultDTO> AnalyseAsync(CreateRaceDTO createData, FileDTO file, string uploader)
         {
             //Validar minimamente os dados de input.
             if (createData == null || uploader == null)
                 throw new Exception("Dados inválidos para análise.");
-            else if (!this.ValidateRequiredFields(createData, out string requiredFieldsErrorMessage))
+            else if (!this.ValidateRequiredFields(createData, file, out string requiredFieldsErrorMessage))
                 throw new BusinessException(requiredFieldsErrorMessage);
 
             //Processar o arquivo.
-            await this._raceFileReader.Read(createData.ResultsFile);
+            await this._raceFileReader.Read(file.Content);
 
             //Tratar retorno.
             if (this.ValidatePostProcessing(out string postProcessingErrorMessage))
@@ -243,14 +244,14 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
             return driverResults;
         }
 
-        private bool ValidateRequiredFields(CreateRaceDTO createData, out string requiredFieldsErrorMessage)
+        private bool ValidateRequiredFields(CreateRaceDTO createData, FileDTO file, out string requiredFieldsErrorMessage)
         {
             requiredFieldsErrorMessage = string.Empty;
             if (string.IsNullOrWhiteSpace(createData.Description))
                 requiredFieldsErrorMessage += "Descrição não informada;";
             else if (createData.TotalLaps < 1)
                 requiredFieldsErrorMessage += "Número de voltas inválido;";
-            else if (createData.ResultsFile == null || createData.ResultsFile.Length == 0)
+            else if (file.Content == null || file.Content.Length == 0) //TODO - tratar extensões.
                 requiredFieldsErrorMessage += "Arquivo inválido para análise;";
             else if (!this._raceTypeRepository.Exists(this._raceTypeQuery.ById(createData.RaceTypeId)))
                 requiredFieldsErrorMessage += "Tipo de corrida inválido.";

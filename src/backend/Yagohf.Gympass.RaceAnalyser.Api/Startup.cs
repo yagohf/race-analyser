@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Yagohf.Gympass.RaceAnalyser.Api.Infrastructure.Filters;
+using Yagohf.Gympass.RaceAnalyser.Api.Infrastructure.Swagger.Filters;
 using Yagohf.Gympass.RaceAnalyser.Infrastructure.Configuration;
 using Yagohf.Gympass.RaceAnalyser.Injector.Extensions;
 
@@ -78,6 +79,9 @@ namespace Yagohf.Gympass.RaceAnalyser.Api
             //Swagger.
             services.AddSwaggerGen(cfg =>
             {
+                cfg.OperationFilter<SwaggerConsumesOperationFilter>();
+                cfg.OperationFilter<FormFileOperationFilter>();
+
                 cfg.SwaggerDoc("v1", new Swashbuckle.AspNetCore.Swagger.Info()
                 {
                     Title = "RaceAnalyser API",
