@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RaceService } from '../_services/race.service';
 
 @Component({
@@ -13,11 +13,11 @@ export class SubmitComponent implements OnInit {
 
   ngOnInit() {
     this.form = this.formBuilder.group({
-      description: '',
-      date: '',
-      raceTypeId: '',
-      totalLaps: '',
-      file: ['']
+      // description: ['', [Validators.required, Validators. ],
+      date: ['', Validators.required],
+      raceTypeId: ['', Validators.required],
+      totalLaps: ['', Validators.required],
+      file: ['', Validators.required]
     });
   }
 
@@ -35,6 +35,8 @@ export class SubmitComponent implements OnInit {
     formData.append('raceTypeId', this.form.get('raceTypeId').value);
     formData.append('totalLaps', this.form.get('totalLaps').value);
     formData.append('file', this.form.get('file').value);
+
+    formData.forEach((fd, p) => console.log(fd));
 
     this.raceService.submit(formData).subscribe(
       (res) => {
