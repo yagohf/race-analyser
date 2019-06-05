@@ -18,6 +18,7 @@ import { AuthGuard } from './_guards/auth.guard';
 import { AuthInterceptor } from './_interceptors/auth.interceptor';
 import { ErrorInterceptor } from './_interceptors/error.interceptor';
 import { LoaderInterceptor } from './_interceptors/loader.interceptor';
+import { TimeSpanPipe } from './_pipes/timespan.pipe';
 
 import { AppRoutingModule } from './_routing/app-routing.module';
 import { AppNgxbootsbundleModule } from './_ngxbundle/ngxbootstrapbundle.module';
@@ -32,7 +33,8 @@ import { AppNgxbootsbundleModule } from './_ngxbundle/ngxbootstrapbundle.module'
     RaceComponent,
     MenuComponent,
     MessagesComponent,
-    LoaderComponent
+    LoaderComponent,
+    TimeSpanPipe
   ],
   imports: [
     BrowserModule,

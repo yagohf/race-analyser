@@ -1,1 +1,66 @@
-<h2>Race</h2>
+<div class="container-fluid">
+
+    <a routerLink="/results" role="button">
+        <i class="fa fa-arrow-left"></i>
+        Voltar</a>
+    <h4>
+        Resultados - {{ race.raceDescription }}
+    </h4>
+
+    <ul>
+        <li>Total de voltas: {{ race.totalLaps }}</li>
+        <li>Data de realização: {{ race.raceDate | date:'dd/MM/yyyy'}}</li>
+        <li>Vencedor: {{ race.winner }}</li>
+        <li>Enviada por: {{ race.uploader }} em {{ race.uploadDate | date:'dd/MM/yyyy'}} às
+            {{ race.uploadDate | date:'HH:mm:ss' }}</li>
+        <li>Melhor volta: {{ race.bestLap.driver }} - {{ race.bestLap.time | timespan:true }}</li>
+    </ul>
+
+    <div class="row mt-10">
+        <div class="col-md-12">
+            <table id="table-races-summary" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <td colspan="7" class="text-center">
+                            Classificação final
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>#</th>
+                        <th>Piloto</th>
+                        <th>Voltas completadas</th>
+                        <th>Tempo total de corrida</th>
+                        <th>Diferença</th>
+                        <th>Melhor volta</th>
+                        <th>Velocidade média</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let driver of race.results">
+                        <td style="width: 5%" class="text-center">
+                            {{ driver.position }}
+                        </td>
+                        <td style="width: 40%">
+                            {{ driver.driverNumber }} - {{ driver.driverName }}
+                        </td>
+                        <td class="text-center" style="width: 10%">
+                            {{ driver.laps }}
+                        </td>
+                        <td style="width: 15%" class="text-center">
+                            {{ driver.totalRaceTime | timespan:false }}
+                        </td>
+                        <td style="width: 10%" class="text-center">
+                            {{ driver.gap ? '+' : '' }} {{ driver.gap | timespan:true }}
+                        </td>
+                        <td style="width: 10%" class="text-center">
+                            {{ driver.bestLap | timespan:true }}
+                        </td>
+                        <td style="width: 10%" class="text-center">
+                            {{ driver.averageSpeed }} km/h
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

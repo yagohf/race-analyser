@@ -19,3 +19,20 @@ th {
 .mt-15 {
     margin-top: 15px;
 }
+
+/* Paginador */
+.pager-container {
+    margin: 0;
+    padding: 0;
+    float: right;
+}
+
+.pager-container li {
+    cursor: pointer;
+}
+
+.pager-container li.active a {
+    color: #ffffff !important;
+    background-color: #5bc0de !important;
+    border-color: #46b8da !important;
+}

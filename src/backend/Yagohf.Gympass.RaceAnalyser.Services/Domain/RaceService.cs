@@ -92,6 +92,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
 
             result.RaceId = race.Id;
             result.RaceDescription = race.Description;
+            result.TotalLaps = race.TotalLaps;
             result.RaceDate = race.Date;
             result.UploadDate = race.UploadDate;
             result.Uploader = race.Uploader.Login;

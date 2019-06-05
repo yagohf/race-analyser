@@ -14,7 +14,7 @@
       <div class="collapse navbar-collapse" [collapse]="isCollapsed">
         <ul class="nav navbar-nav navbar-right">
           <li class="nav-item" *ngIf="!(loggedUserInfo$ | async)?.authenticated">
-            <a class="nav-link" href="/access">
+            <a class="nav-link" routerLink="/access">
               <i class="fa fa-user"></i>
               Login</a>
           </li>
