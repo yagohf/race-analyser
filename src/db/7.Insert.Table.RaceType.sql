@@ -1,3 +1,6 @@
+USE [RaceAnalyser];
+GO
+
 IF 
 	NOT EXISTS (SELECT 1 FROM [dbo].[RaceType] WHERE [Id] = 1)
 AND 

@@ -19,7 +19,7 @@ export class AuthenticationService {
   }
 
   login(authentication: Authentication) {
-    return this.http.post<any>(`${environment.enderecoApi}/users/token`, authentication)
+    return this.http.post<any>(`${environment.apiAddress}/users/token`, authentication)
       .pipe(map(result => {
         //Login com sucesso se o retorno contiver um token.
         if (result && result.token) {

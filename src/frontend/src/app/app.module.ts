@@ -8,6 +8,7 @@ import { AccessComponent } from './access/access.component';
 import { HomeComponent } from './home/home.component';
 import { ResultsComponent } from './results/results.component';
 import { SubmitComponent } from './submit/submit.component';
+import { RaceComponent } from './race/race.component';
 import { MessagesComponent } from './messages/messages.component';
 import { LoaderComponent } from './loader/loader.component';
 import { MenuComponent } from './menu/menu.component';
@@ -28,6 +29,7 @@ import { AppNgxbootsbundleModule } from './_ngxbundle/ngxbootstrapbundle.module'
     HomeComponent,
     ResultsComponent,
     SubmitComponent,
+    RaceComponent,
     MenuComponent,
     MessagesComponent,
     LoaderComponent

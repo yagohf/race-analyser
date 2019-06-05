@@ -58,7 +58,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Api.Controllers
         {
             //TODO - substituir por model binding customizado, que permite enviar IFormFile junto com uma model.
             MemoryStream ms = new MemoryStream();
-            using (FileStream fs = new FileStream(@"C:\Dev\race-analyser\src\simulations\ITALY_1.txt", FileMode.Open))
+            using (FileStream fs = new FileStream(@"C:\Workspace\race-analyser\src\simulations\ITALY_1.txt", FileMode.Open))
             {
                 await fs.CopyToAsync(ms);
             }

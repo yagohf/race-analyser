@@ -3,18 +3,19 @@
     <div class="row">
         <div class="col-md-12">
             <div class="input-group ">
-                <input type="text" class="form-control" placeholder="Pesquisar por descrição">
+                <input #searchInput type="text" class="form-control" placeholder="Pesquisar por descrição"
+                    (keyup.enter)="forceSearchByName(searchInput.value)">
                 <span class="input-group-btn">
-                    <button class="btn btn-info" type="button">
+                    <button class="btn btn-info" type="button" (click)="forceSearchByName(searchInput.value)">
                         <i class="fa fa-search"></i>
                     </button>
                 </span>
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row mt-10">
         <div class="col-md-12">
-            <table id="table-races-summary" class="table table-striped">
+            <table id="table-races-summary" class="table table-bordered">
                 <thead>
                     <tr>
                         <th>Tipo</th>
@@ -25,10 +26,69 @@
                         <th>Ações</th>
                     </tr>
                 </thead>
-                <tbody>
-
+                <tbody *ngIf="summaries.list && summaries.list.length > 0">
+                    <tr *ngFor="let race of summaries.list">
+                        <td style="width: 10%">
+                            {{ race.raceTypeDescription }}
+                        </td>
+                        <td style="width: 30%">
+                            {{ race.raceDescription }}
+                        </td>
+                        <td class="text-center" style="width: 10%">
+                            {{ race.raceDate | date:'dd/MM/yyyy' }}
+                        </td>
+                        <td style="width: 30%">
+                            {{ race.winner }}
+                        </td>
+                        <td style="width: 10%">
+                            {{ race.uploader }}
+                        </td>
+                        <td style="width: 10%" class="text-center">
+                            <a routerLink="/race" [queryParams]="{raceId: race.raceId}" class="btn btn-sm btn-info">
+                                <i class="fa fa-plus"></i>
+                                Detalhes
+                            </a>
+                        </td>
+                    </tr>
                 </tbody>
+
+                <tbody *ngIf="!summaries.list || summaries.list.length == 0">
+                    <tr>
+                        <td colspan="6" class="text-center">
+                            Não existem dados para exibição
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="6">
+                            <!-- pager -->
+                            <ul *ngIf="pager.pages && pager.pages.length" class="pagination pager-container">
+                                <li [ngClass]="{disabled:pager.currentPage === 1}">
+                                    <a (click)="setPage(1, (pager.currentPage === 1))">&lt;&lt;</a>
+                                </li>
+                                <li [ngClass]="{disabled:pager.currentPage === 1}">
+                                    <a (click)="setPage(pager.currentPage - 1, (pager.currentPage === 1))">&lt;</a>
+                                </li>
+                                <li *ngFor="let page of pager.pages" [ngClass]="{active:pager.currentPage === page}">
+                                    <a (click)="setPage(page)">{{page}}</a>
+                                </li>
+                                <li [ngClass]="{disabled:pager.currentPage === pager.totalPages}">
+                                    <a
+                                        (click)="setPage(pager.currentPage + 1, (pager.currentPage === pager.totalPages))">&gt;</a>
+                                </li>
+                                <li [ngClass]="{disabled:pager.currentPage === pager.totalPages}">
+                                    <a
+                                        (click)="setPage(pager.totalPages, (pager.currentPage === pager.totalPages))">&gt;&gt;</a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tfoot>
             </table>
+        </div>
+        <div class="col-md-12 pager-container">
+
         </div>
     </div>
 </div>

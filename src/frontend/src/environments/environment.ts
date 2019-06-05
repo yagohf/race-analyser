@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  enderecoApi: 'http://localhost:57856/api/v1'
+  apiAddress: 'http://localhost:57856/api/v1'
 };
 
 /*
