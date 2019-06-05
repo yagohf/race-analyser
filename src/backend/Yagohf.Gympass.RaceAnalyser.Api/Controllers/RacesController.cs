@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -39,6 +40,16 @@ namespace Yagohf.Gympass.RaceAnalyser.Api.Controllers
         }
 
         /// <summary>
+        /// Consulta os tipos de corridas existentes.
+        /// </summary>
+        [HttpGet("types")]
+        [SwaggerResponse(200, typeof(IEnumerable<RaceTypeDTO>))]
+        public async Task<IActionResult> GetRaceTypes()
+        {
+            return Ok(await this._raceService.GetRaceTypes());
+        }
+
+        /// <summary>
         /// Consulta os detalhes de uma corrida específica.
         /// </summary>
         /// <param name="id">Identificador único da corrida.</param>
@@ -72,6 +83,17 @@ namespace Yagohf.Gympass.RaceAnalyser.Api.Controllers
 
             RaceResultDTO raceResult = await this._raceService.AnalyseAsync(model, fileDTO, this.GetLoggedUser());
             return CreatedAtAction(nameof(GetResultById), new { id = raceResult.RaceId }, raceResult);
+        }
+
+        /// <summary>
+        /// Obtém o arquivo de exemplo para upload de dados das corridas.
+        /// </summary>
+        [HttpGet("example")]
+        [SwaggerResponse(200, typeof(byte[]))]
+        public async Task<IActionResult> GetExample()
+        {
+            FileDTO example = await this._raceService.GetExampleFileAsync();
+            return File(example.Content, example.ContentType, example.Name);
         }
     }
 }

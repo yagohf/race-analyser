@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Yagohf.Gympass.RaceAnalyser.Infrastructure.Model;
 using Yagohf.Gympass.RaceAnalyser.Infrastructure.Paging;
 using Yagohf.Gympass.RaceAnalyser.Model.DTO.Race;
@@ -31,5 +32,17 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Interface.Domain
         /// <param name="uploader">Usuário fazendo upload da corrida para análise.</param>
         /// <returns>Resultado analisado da corrida.</returns>
         Task<RaceResultDTO> AnalyseAsync(CreateRaceDTO createData, FileDTO file, string uploader);
+
+        /// <summary>
+        /// Recupera o arquivo de exemplo para upload de corridas.
+        /// </summary>
+        /// <returns>Arquivo e suas informações.</returns>
+        Task<FileDTO> GetExampleFileAsync();
+
+        /// <summary>
+        /// Lista os tipos de corridas existentes.
+        /// </summary>
+        /// <returns></returns>
+        Task<IEnumerable<RaceTypeDTO>> GetRaceTypes();
     }
 }

@@ -79,6 +79,17 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
             }
         }
 
+        public async Task<FileDTO> GetExampleFileAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<RaceTypeDTO>> GetRaceTypes()
+        {
+            var types = await this._raceTypeRepository.ListAllAsync();
+            return types.Map<RaceType, RaceTypeDTO>(this._mapper);
+        }
+
         public async Task<RaceResultDTO> GetResultByIdAsync(int id)
         {
             RaceResultDTO result = new RaceResultDTO();
@@ -116,7 +127,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
             }
 
             return listagem.Map<Race, RaceSummaryDTO>(this._mapper);
-        }
+        }        
 
         #region [ Helpers ]
 
@@ -257,7 +268,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
                 requiredFieldsErrorMessage += "Tipo de corrida inválido.";
 
             return string.IsNullOrEmpty(requiredFieldsErrorMessage);
-        }
+        }       
 
         #endregion
     }
