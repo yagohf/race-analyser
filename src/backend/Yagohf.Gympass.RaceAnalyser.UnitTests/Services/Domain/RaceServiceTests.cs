@@ -793,5 +793,35 @@ namespace Yagohf.Gympass.RaceAnalyser.UnitTests.Services.Domain
             //Assert.
             Assert.IsNotNull(result);
         }
+
+        [TestMethod]
+        public async Task Test_ListRaceTypesAsync()
+        {
+            //Arrange.
+            int totalRaceTypes = 100;
+            List<RaceType> raceTypesMock = new List<RaceType>();
+
+            for (int i = 0; i < totalRaceTypes; i++)
+            {
+                raceTypesMock.Add(new RaceType()
+                {
+                    Id = i,
+                    Name = $"Race Type {i}"
+                });
+            }
+
+            //Mockar retorno do repositório.
+            this._raceTypeRepositoryMock
+               .Setup(rep => rep.ListAllAsync())
+               .Returns(Task.FromResult(raceTypesMock.AsEnumerable()));
+
+            //Act.
+            var result = await this._raceService.ListRaceTypesAsync();
+
+            //Assert.
+            Assert.IsNotNull(result);
+            Assert.AreEqual(raceTypesMock.Count(), result.Count());
+            CollectionAssert.AreEquivalent(raceTypesMock.Select(x => x.Id).ToList(), result.Select(x => x.Id).ToList());            
+        }
     }
 }
