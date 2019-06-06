@@ -15,7 +15,6 @@ export class SubmitComponent implements OnInit {
   raceTypes: RaceType[] = [];
   submitted: boolean = false;
   submitForm: FormGroup;
-  error: string;
   uploadResponse: any = { status: '', response: '' };
 
   constructor(private router: Router, private formBuilder: FormBuilder, private raceService: RaceService) { }
