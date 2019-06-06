@@ -53,7 +53,7 @@ namespace Yagohf.Gympass.RaceAnalyser.UnitTests.Api
         }
 
         [TestMethod]
-        public async Task Testar_Post()
+        public async Task Test_Post()
         {
             //Arrange.
             UserDTO userMock = new UserDTO()
@@ -89,7 +89,7 @@ namespace Yagohf.Gympass.RaceAnalyser.UnitTests.Api
         }
 
         [TestMethod]
-        public async Task Testar_PostAutenticacao()
+        public async Task Test_PostAuth()
         {
             //Arrange.
             TokenDTO mockToken = new TokenDTO()
