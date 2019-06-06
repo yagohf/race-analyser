@@ -46,7 +46,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Api.Controllers
         [SwaggerResponse(200, typeof(IEnumerable<RaceTypeDTO>))]
         public async Task<IActionResult> GetRaceTypes()
         {
-            return Ok(await this._raceService.GetRaceTypes());
+            return Ok(await this._raceService.ListRaceTypesAsync());
         }
 
         /// <summary>

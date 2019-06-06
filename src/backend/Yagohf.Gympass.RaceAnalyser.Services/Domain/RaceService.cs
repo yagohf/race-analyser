@@ -102,7 +102,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
             return file;
         }
 
-        public async Task<IEnumerable<RaceTypeDTO>> GetRaceTypes()
+        public async Task<IEnumerable<RaceTypeDTO>> ListRaceTypesAsync()
         {
             var types = await this._raceTypeRepository.ListAllAsync();
             return types.Map<RaceType, RaceTypeDTO>(this._mapper);

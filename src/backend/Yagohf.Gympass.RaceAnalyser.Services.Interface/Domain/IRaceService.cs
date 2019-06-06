@@ -43,6 +43,6 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Interface.Domain
         /// Lista os tipos de corridas existentes.
         /// </summary>
         /// <returns></returns>
-        Task<IEnumerable<RaceTypeDTO>> GetRaceTypes();
+        Task<IEnumerable<RaceTypeDTO>> ListRaceTypesAsync();
     }
 }

@@ -20,7 +20,7 @@ namespace Yagohf.Gympass.RaceAnalyser.UnitTests.Api
         }
 
         [TestInitialize]
-        public void Inicializar()
+        public void Initialize()
         {
             this._usersController = new UsersController(this._userServiceMock.Object);
         }
@@ -39,7 +39,7 @@ namespace Yagohf.Gympass.RaceAnalyser.UnitTests.Api
             };
 
             this._userServiceMock
-                .Setup(bsn => bsn.GetByLoginAsync(userLogin))
+                .Setup(srv => srv.GetByLoginAsync(userLogin))
                 .Returns(Task.FromResult(userMock));
 
             //Act.
@@ -71,7 +71,7 @@ namespace Yagohf.Gympass.RaceAnalyser.UnitTests.Api
             };
 
             this._userServiceMock
-                .Setup(bsn => bsn.RegisterAsync(registrationData))
+                .Setup(srv => srv.RegisterAsync(registrationData))
                 .Returns(Task.FromResult(userMock));
 
             //Act.
@@ -106,7 +106,7 @@ namespace Yagohf.Gympass.RaceAnalyser.UnitTests.Api
             };
 
             this._userServiceMock
-                .Setup(bsn => bsn.GenerateTokenAsync(authenticationData))
+                .Setup(srv => srv.GenerateTokenAsync(authenticationData))
                 .Returns(Task.FromResult(mockToken));
 
             //Act.
