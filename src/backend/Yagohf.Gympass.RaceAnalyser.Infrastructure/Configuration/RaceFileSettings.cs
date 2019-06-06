@@ -3,6 +3,7 @@
     public class RaceFileSettings
     {
         public int LineMinLength { get; set; }
+        public int LineMaxLength { get; set; }
         public RaceFileSettingsItem Date { get; set; }
         public RaceFileSettingsItem DriverNumber { get; set; }
         public RaceFileSettingsItem DriverName { get; set; }

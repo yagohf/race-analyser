@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -55,10 +56,8 @@ namespace Yagohf.Gympass.RaceAnalyser.UnitTests.Services.Domain
 
             //Configurar FileServerSettings.
             this._fileServerSettingsOptionsMock = new Mock<IOptions<FileServerSettings>>();
-            FileServerSettings fileServerSettings = new FileServerSettings()
-            {
-                Path = TestUtil.GetConfiguration().GetSection("FileServer:Path").Value
-            };
+            FileServerSettings fileServerSettings = new FileServerSettings();
+            TestUtil.GetConfiguration().GetSection("FileServer").Bind(fileServerSettings);
             this._fileServerSettingsOptionsMock.Setup(x => x.Value).Returns(fileServerSettings);
 
             MapperConfiguration mapperConfiguration = new MapperConfiguration(mConfig =>

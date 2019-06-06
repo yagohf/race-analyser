@@ -29,6 +29,13 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Helper
 
         public async Task Read(Stream file)
         {
+            if(file == null || file.Length == 0)
+            {
+                this.Success = false;
+                this.ErrorMessage = "Arquivo inválido para processamento";
+                return;
+            }
+
             this._results = new List<Lap>();
             this._currentLine = 1;
             file.Position = 0; //Rebobinar o stream.
@@ -61,7 +68,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Helper
             Lap lap = new Lap();
             StringBuilder sb = new StringBuilder();
 
-            if (lineContent.Length < this._settings.LineMinLength)
+            if (lineContent.Length < this._settings.LineMinLength || lineContent.Length > this._settings.LineMaxLength)
             {
                 sb.Append($"A linha {this._currentLine} não tem o tamanho correto;");
             }
