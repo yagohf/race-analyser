@@ -9,6 +9,7 @@ export class RaceResult {
     raceId: number;
     raceDescription: string;
     totalLaps: number;
+    raceTypeDescription: string;
     raceDate: Date;
     winner: string
     uploader: string;

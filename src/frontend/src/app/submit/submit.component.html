@@ -32,7 +32,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-md-2">
-                                <label>Tipo de corrida</label>
+                                <label>Modalidade</label>
                                 <select class="form-control" formControlName="raceTypeId"
                                     [ngClass]="{ 'invalid': submitted && f.raceTypeId.errors }">
                                     <option value="">Selecione</option>
@@ -41,7 +41,7 @@
                                     </option>
                                 </select>
                                 <div *ngIf="submitted && f.raceTypeId.errors?.required" class="invalid-feedback">
-                                    Tipo de corrida obrigatório
+                                    Modalidade obrigatória
                                 </div>
                             </div>
                             <div class="form-group col-md-2">

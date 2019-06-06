@@ -118,6 +118,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
         {
             RaceResultDTO result = new RaceResultDTO();
             var race = await this._raceRepository.GetSingleAsync(this._raceQuery.ById(id));
+            var raceType = await this._raceTypeRepository.GetSingleAsync(this._raceTypeQuery.ById(race.RaceTypeId));
             var results = await this._driverResultRepository.ListAsync(this._driverResultQuery.ByRace(id));
             var winner = results.First(); //TODO - não há critério de desempate. Como proceder ?
             var bestLap = results.OrderBy(x => x.BestLap).ThenBy(x => x.Position).Select(x => new BestLapDTO()
@@ -135,6 +136,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
             result.Winner = $"{winner.DriverNumber} - {winner.DriverName}";
             result.BestLap = bestLap;
             result.Results = results.Map<DriverResult, DriverResultDTO>(this._mapper);
+            result.RaceTypeDescription = raceType.Name;
             return result;
         }
 

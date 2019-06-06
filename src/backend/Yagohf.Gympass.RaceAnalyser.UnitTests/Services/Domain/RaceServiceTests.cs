@@ -158,6 +158,22 @@ namespace Yagohf.Gympass.RaceAnalyser.UnitTests.Services.Domain
                .Setup(rep => rep.ListAsync(It.Is<IQuery<DriverResult>>(q => q.Equals(driverResultsByRaceIdQuery))))
                .Returns(Task.FromResult(driverResultsMock.AsEnumerable()));
 
+            RaceType raceTypeMock = new RaceType()
+            {
+                Id = raceMock.Id,
+                Name = "F-1"
+            };
+
+            //Mockar query para o tipo de corrida.
+            var raceTypeByIdQuery = new Query<RaceType>();
+            this._raceTypeQueryMock.Setup(x => x.ById(raceMock.RaceTypeId))
+                .Returns(raceTypeByIdQuery);
+
+            //Mockar retorno do repositório quando usamos a query criada.
+            this._raceTypeRepositoryMock
+               .Setup(rep => rep.GetSingleAsync(It.Is<IQuery<RaceType>>(q => q.Equals(raceTypeByIdQuery))))
+               .Returns(Task.FromResult(raceTypeMock));
+
             //Act.
             var result = await this._raceService.GetResultByIdAsync(raceMock.Id);
 
@@ -667,6 +683,12 @@ namespace Yagohf.Gympass.RaceAnalyser.UnitTests.Services.Domain
                 new Lap() { DriverNumber = 11, DriverName = "F. Massa", Number = 1 }
             };
 
+            RaceType raceTypeMock = new RaceType()
+            {
+                Id = 1,
+                Name = "F-1"
+            };
+
             //Mockar query para o tipo de corrida.
             var raceTypeByIdQuery = new Query<RaceType>();
             this._raceTypeQueryMock.Setup(x => x.ById(createRaceDTO.RaceTypeId))
@@ -676,6 +698,11 @@ namespace Yagohf.Gympass.RaceAnalyser.UnitTests.Services.Domain
             this._raceTypeRepositoryMock
                .Setup(rep => rep.Exists(It.Is<Query<RaceType>>(q => q.Equals(raceTypeByIdQuery))))
                .Returns(true);
+
+            //Mockar retorno do repositório quando usamos a query criada.
+            this._raceTypeRepositoryMock
+               .Setup(rep => rep.GetSingleAsync(It.Is<IQuery<RaceType>>(q => q.Equals(raceTypeByIdQuery))))
+               .Returns(Task.FromResult(raceTypeMock));
 
             //Mockar mensagem, status do leitor de arquivo e coleção de voltas lidas.
             this._raceFileReaderMock.Setup(x => x.ErrorMessage)
@@ -820,7 +847,7 @@ namespace Yagohf.Gympass.RaceAnalyser.UnitTests.Services.Domain
             //Assert.
             Assert.IsNotNull(result);
             Assert.AreEqual(raceTypesMock.Count(), result.Count());
-            CollectionAssert.AreEquivalent(raceTypesMock.Select(x => x.Id).ToList(), result.Select(x => x.Id).ToList());            
+            CollectionAssert.AreEquivalent(raceTypesMock.Select(x => x.Id).ToList(), result.Select(x => x.Id).ToList());
         }
     }
 }

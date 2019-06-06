@@ -8,6 +8,7 @@
     </h4>
 
     <ul>
+        <li>Modalidade: {{ race.raceTypeDescription }}</li>
         <li>Total de voltas: {{ race.totalLaps }}</li>
         <li>Data de realização: {{ race.raceDate | date:'dd/MM/yyyy'}}</li>
         <li>Vencedor: {{ race.winner }}</li>
