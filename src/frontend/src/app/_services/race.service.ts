@@ -6,12 +6,21 @@ import { tap, map } from 'rxjs/operators';
 import { Listing } from '../_models/infrastructure/listing';
 import { RaceSummary } from '../_models/racesummary';
 import { RaceResult } from '../_models/raceresult';
+import { RaceType } from '../_models/racetype';
 
 @Injectable({
     providedIn: 'root'
 })
 export class RaceService {
     constructor(private http: HttpClient) { }
+
+    listRaceTypes() {
+        const url = `${environment.apiAddress}/races/types`;
+        return this.http.get<RaceType[]>(url)
+            .pipe(
+                tap(_ => console.log(_))
+            );
+    }
 
     listSummaries(description?: string, page?: number): Observable<Listing<RaceSummary>> {
         let url = `${environment.apiAddress}/races?page=${page || 1}`;
@@ -43,11 +52,11 @@ export class RaceService {
             switch (event.type) {
                 case HttpEventType.UploadProgress:
                     const progress = Math.round(100 * event.loaded / event.total);
-                    return { status: 'progress', message: progress };
+                    return { status: 'progress', response: progress };
                 case HttpEventType.Response:
-                    return event.body;
+                    return { status: 'finished', response: event.body };
                 default:
-                    return `Unhandled event: ${event.type}`;
+                    return { status: 'not-handled', response: `Evento não tratado: ${event.type}` };;
             }
         }));
     }

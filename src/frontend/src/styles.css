@@ -36,3 +36,20 @@ th {
     background-color: #5bc0de !important;
     border-color: #46b8da !important;
 }
+
+/* Estilos para validação de formulários */
+.invalid-feedback {
+    display: block;
+    width: 100%;
+    margin-top: .25rem;
+    font-size: 80%;
+    color: #dc3545;
+}
+
+.form-control.invalid {
+    border-color: #dc3545;
+}
+
+.form-group {
+    margin-top: 5px;
+}

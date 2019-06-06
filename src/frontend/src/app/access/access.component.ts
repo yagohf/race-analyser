@@ -13,6 +13,11 @@ import { EnumMessageType } from '../_models/enums/enum.messagetype';
 })
 export class AccessComponent implements OnInit {
 
+    logging: boolean = false;
+    formLogin: FormGroup;
+    returnUrl: string;
+    submitted: boolean = false;
+
     constructor(
         private router: Router,
         private route: ActivatedRoute,
@@ -64,9 +69,4 @@ export class AccessComponent implements OnInit {
                     this.logging = false;
                 });
     }
-
-    logging: boolean = false;
-    formLogin: FormGroup;
-    returnUrl: string;
-    submitted: boolean = false;
 }

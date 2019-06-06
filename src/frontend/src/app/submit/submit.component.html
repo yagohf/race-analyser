@@ -5,37 +5,70 @@
 
     <div class="row mt-10">
         <div class="col-md-12">
-            <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <form [formGroup]="submitForm" (ngSubmit)="onSubmit()">
                 <div class="panel panel-default">
                     <div class="panel-heading">Nova análise</div>
                     <div class="panel-body">
-                        <div class="form-group col-md-6">
-                            <label>Descrição da corrida</label>
-                            <input type="text" name="description" class="form-control"
-                                placeholder="(ex: GP de Monza 2019)" formControlName="description" />
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label>Descrição da corrida</label>
+                                <input type="text" class="form-control" placeholder="(ex: GP de Monza 2019)"
+                                    formControlName="description"
+                                    [ngClass]="{ 'invalid': submitted && f.description.errors }" />
+                                <div *ngIf="submitted && f.description.errors?.required" class="invalid-feedback">
+                                    Descrição obrigatória
+                                </div>
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label>Data de realização</label>
+                                <input type="date" class="form-control" placeholder="DD/MM/YYYY" formControlName="date"
+                                    [ngClass]="{ 'invalid': submitted && f.date.errors }" min="1900-01-01"
+                                    max="{{currentFormattedDate}}" />
+                                <div *ngIf="submitted && f.date.errors?.required" class="invalid-feedback">
+                                    Data de realização obrigatória
+                                </div>
+                                <div *ngIf="submitted && f.date.errors?.invalidDate" class="invalid-feedback">
+                                    Data de realização inválida
+                                </div>
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label>Tipo de corrida</label>
+                                <select class="form-control" formControlName="raceTypeId"
+                                    [ngClass]="{ 'invalid': submitted && f.raceTypeId.errors }">
+                                    <option value="">Selecione</option>
+                                    <option *ngFor="let rt of raceTypes" value="{{rt.id}}">
+                                        {{rt.name}}
+                                    </option>
+                                </select>
+                                <div *ngIf="submitted && f.raceTypeId.errors?.required" class="invalid-feedback">
+                                    Tipo de corrida obrigatório
+                                </div>
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label>Quantidade de voltas</label>
+                                <input type="text" class="form-control" placeholder="(ex: 10)"
+                                    formControlName="totalLaps"
+                                    [ngClass]="{ 'invalid': submitted && f.totalLaps.errors }" />
+                                <div *ngIf="submitted && f.totalLaps.errors?.required" class="invalid-feedback">
+                                    Quantidade de voltas obrigatória
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group col-md-2">
-                            <label>Data de realização</label>
-                            <input type="text" name="date" class="form-control" placeholder="DD/MM/YYYY"
-                                formControlName="date" />
-                        </div>
-                        <div class="form-group col-md-2">
-                            <label>Tipo de corrida</label>
-                            <select class="form-control" name="raceTypeId" formControlName="raceTypeId">
-                                <option value="">Selecione</option>
-                            </select>
-                        </div>
-                        <div class="form-group col-md-2">
-                            <label>Quantidade de voltas</label>
-                            <input type="text" name="totalLaps" class="form-control" placeholder="(ex: 10)"
-                                formControlName="totalLaps" />
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label for="exampleInputFile">Arquivo com os resultados</label>
-                            <input type="file" name="file" (change)="onFileChange($event)">
-                            <p class="help-block">Arquivo de texto (.TXT).
-                                <a href="#">Baixe um arquivo de exemplo clicando aqui.</a>
-                            </p>
+
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="exampleInputFile">Arquivo com os resultados</label>
+                                <input type="file" name="file" (change)="onFileChange($event)">
+                                <p class="help-block">Arquivo no formato .TXT.
+                                    <a href="#">
+                                        Exemplo
+                                        <i class="fa fa-download"></i>
+                                    </a>
+                                </p>
+                                <div *ngIf="submitted && f.file.errors?.required" class="invalid-feedback">
+                                    Arquivo obrigatório
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="panel-footer text-right">

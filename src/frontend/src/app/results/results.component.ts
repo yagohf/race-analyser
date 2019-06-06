@@ -12,6 +12,11 @@ import { Listing } from '../_models/infrastructure/listing';
 })
 export class ResultsComponent implements OnInit {
 
+  searchTerm: string;
+  raceSummaries: RaceSummary[];
+  pager: any = {};
+  summaries: Listing<RaceSummary> = new Listing<RaceSummary>();
+
   constructor(private raceService: RaceService, private pagerService: PagerService) { }
 
   ngOnInit() {
@@ -41,9 +46,4 @@ export class ResultsComponent implements OnInit {
     this.searchTerm = text;
     this.loadSummaries(1);
   }
-
-  searchTerm: string;
-  raceSummaries: RaceSummary[];
-  pager: any = {};
-  summaries: Listing<RaceSummary> = new Listing<RaceSummary>();
 }

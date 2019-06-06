@@ -9,11 +9,12 @@ import { ActivatedRoute } from '@angular/router';
     styleUrls: ['./Race.component.css']
 })
 export class RaceComponent implements OnInit {
+    race: RaceResult = new RaceResult();
 
     constructor(private raceService: RaceService, private route: ActivatedRoute) { }
 
     ngOnInit() {
-        this.route.queryParams.subscribe(params=> {
+        this.route.queryParams.subscribe(params => {
             this.loadRaceResult(params['raceId']);
         });
     }
@@ -21,8 +22,6 @@ export class RaceComponent implements OnInit {
     loadRaceResult(raceId: number) {
         this.raceService.getRaceResult(raceId).subscribe(data => {
             this.race = data;
-          });
+        });
     }
-
-    race: RaceResult = new RaceResult();
 }

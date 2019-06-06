@@ -11,6 +11,7 @@ import { LoggedUser } from '../_models/loggeduser';
 })
 export class MenuComponent implements OnInit {
   isCollapsed = true;
+  loggedUserInfo$: Observable<LoggedUser>;
 
   constructor(private router: Router, private authenticationService: AuthenticationService) { }
 
@@ -21,7 +22,5 @@ export class MenuComponent implements OnInit {
   logoff() {
     this.authenticationService.logout();
     this.router.navigate(['/home']);
-  }
-
-  loggedUserInfo$: Observable<LoggedUser>;
+  }  
 }

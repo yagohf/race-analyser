@@ -12,7 +12,8 @@ import { Guid } from '../_models/infrastructure/guid';
 export class MessagesComponent implements OnInit {
   subscription: Subscription;
   private messageTypes = EnumMessageType; //Associar membro ao ENUM para poder bindar no template.
-
+  messages: any[] = [];
+  
   constructor(private mensagensService: MessageService) { }
 
   ngOnInit() {
@@ -33,7 +34,5 @@ export class MessagesComponent implements OnInit {
     if (messageToRemove) {
       this.messages.splice(this.messages.indexOf(messageToRemove), 1);
     }
-  }
-
-  messages: any[] = [];
+  } 
 }
