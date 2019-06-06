@@ -26,7 +26,7 @@ namespace Yagohf.Gympass.RaceAnalyser.UnitTests.Api.Infrastructure
         }
 
         [TestInitialize]
-        public void Inicializar()
+        public void Initialize()
         {
             this._apiExceptionFilter = new ApiExceptionFilter(this._loggerMock.Object);
         }
