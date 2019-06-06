@@ -4,13 +4,16 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Yagohf.Gympass.RaceAnalyser.Data.Interface.Queries;
 using Yagohf.Gympass.RaceAnalyser.Data.Interface.Repositories;
 using Yagohf.Gympass.RaceAnalyser.Data.Queries;
 using Yagohf.Gympass.RaceAnalyser.Infrastructure.Configuration;
+using Yagohf.Gympass.RaceAnalyser.Infrastructure.Exception;
 using Yagohf.Gympass.RaceAnalyser.Infrastructure.Extensions;
+using Yagohf.Gympass.RaceAnalyser.Infrastructure.Model;
 using Yagohf.Gympass.RaceAnalyser.Infrastructure.Paging;
 using Yagohf.Gympass.RaceAnalyser.Model.DTO.Race;
 using Yagohf.Gympass.RaceAnalyser.Model.Entities;
@@ -146,7 +149,7 @@ namespace Yagohf.Gympass.RaceAnalyser.UnitTests.Services.Domain
                 }
             };
 
-            //Mockar query.
+            //Mockar query de corrida por id.
             var driverResultsByRaceIdQuery = new Query<DriverResult>();
             this._driverResultQueryMock.Setup(x => x.ByRace(raceMock.Id))
                 .Returns(driverResultsByRaceIdQuery);
@@ -234,7 +237,7 @@ namespace Yagohf.Gympass.RaceAnalyser.UnitTests.Services.Domain
                 });
             }
 
-            //Mockar query.
+            //Mockar query de corridas por descrição.
             var raceByDescriptionQuery = new Query<Race>();
             this._raceQueryMock.Setup(x => x.ByDescription(description))
                 .Returns(raceByDescriptionQuery);
@@ -323,7 +326,7 @@ namespace Yagohf.Gympass.RaceAnalyser.UnitTests.Services.Domain
             var pagedListMock = new Listing<Race>(summariesMock, paging);
             var pagedDTOListMock = new Listing<RaceSummaryDTO>(summariesMock.Map<Race, RaceSummaryDTO>(this._mapper), paging);
 
-            //Mockar query.
+            //Mockar query de corridas por descrição.
             var raceByDescriptionQuery = new Query<Race>();
             this._raceQueryMock.Setup(x => x.ByDescription(description))
                 .Returns(raceByDescriptionQuery);
@@ -343,6 +346,452 @@ namespace Yagohf.Gympass.RaceAnalyser.UnitTests.Services.Domain
             CollectionAssert.AreEquivalent(pagedDTOListMock.List.Select(x => x.RaceId).ToList(), result.List.Select(x => x.RaceId).ToList());
             Assert.AreEqual(pagedDTOListMock.List.Count(), result.List.Count());
             Assert.AreEqual($"{pagedListMock.List.First().DriverResults.First().DriverNumber} - {pagedListMock.List.First().DriverResults.First().DriverName}", result.List.First().Winner);
+        }
+
+        [TestMethod]
+        [ExpectedExceptionWithMessage(typeof(BusinessException), ExpectedMessage = "Dados inválidos para análise")]
+        public async Task Test_AnalyseAsync_NoDataProvided()
+        {
+            //Arrange.
+
+
+            //Act.
+            await this._raceService.AnalyseAsync(null, null, null);
+
+            //Assert.
+
+        }
+
+        [TestMethod]
+        [ExpectedExceptionWithMessage(typeof(BusinessException), ExpectedMessages = new string[]
+        {
+            "Descrição não informada",
+            "Número de voltas inválido",
+            "Arquivo inválido para análise",
+            "Tipo de corrida inválido"
+        })]
+        public async Task Test_AnalyseAsync_InvalidCreateData()
+        {
+            //Arrange.
+            CreateRaceDTO createRaceDTO = new CreateRaceDTO()
+            {
+                Date = DateTime.Now,
+                Description = "",
+                TotalLaps = -10,
+                RaceTypeId = 300
+            };
+
+            FileDTO fileDTO = new FileDTO()
+            {
+                Name = "",
+                Content = null,
+                ContentType = "",
+                Extension = ""
+            };
+
+            //Mockar query para o tipo de corrida.
+            var raceTypeByIdQuery = new Query<RaceType>();
+            this._raceTypeQueryMock.Setup(x => x.ById(createRaceDTO.RaceTypeId))
+                .Returns(raceTypeByIdQuery);
+
+            //Mockar retorno do repositório quando usamos a query criada.
+            this._raceTypeRepositoryMock
+               .Setup(rep => rep.Exists(It.Is<IQuery<RaceType>>(q => q.Equals(raceTypeByIdQuery))))
+               .Returns(false);
+
+
+            //Act.
+            await this._raceService.AnalyseAsync(createRaceDTO, fileDTO, "yagohf");
+
+            //Assert.
+
+        }
+
+        [TestMethod]
+        [ExpectedExceptionWithMessage(typeof(BusinessException), ExpectedMessage = "Erro no processamento")]
+        public async Task Test_AnalyseAsync_InvalidPostProcessing_ReadFailure()
+        {
+            //Arrange.
+            CreateRaceDTO createRaceDTO = new CreateRaceDTO()
+            {
+                Date = DateTime.Now,
+                Description = "Descrição",
+                TotalLaps = 10,
+                RaceTypeId = 1
+            };
+
+            FileDTO fileDTO = new FileDTO()
+            {
+                Name = "Arquivo teste",
+                Content = new MemoryStream(new byte[] { 125, 141, 13, 27 }),
+                ContentType = "text/plain",
+                Extension = "txt"
+            };
+
+            //Mockar query para o tipo de corrida.
+            var raceTypeByIdQuery = new Query<RaceType>();
+            this._raceTypeQueryMock.Setup(x => x.ById(createRaceDTO.RaceTypeId))
+                .Returns(raceTypeByIdQuery);
+
+            //Mockar retorno do repositório quando usamos a query criada.
+            this._raceTypeRepositoryMock
+               .Setup(rep => rep.Exists(It.Is<Query<RaceType>>(q => q.Equals(raceTypeByIdQuery))))
+               .Returns(true);
+
+            //Mockar mensagem e status do leitor de arquivo.
+            this._raceFileReaderMock.Setup(x => x.ErrorMessage)
+                .Returns("Erro no processamento");
+
+            this._raceFileReaderMock.Setup(x => x.Success)
+                .Returns(false);
+
+            //Mockar chamada pro leitor de arquivos.
+            this._raceFileReaderMock.Setup(x => x.Read(It.IsAny<Stream>()))
+                .Returns(Task.CompletedTask);
+
+            //Act.
+            await this._raceService.AnalyseAsync(createRaceDTO, fileDTO, "yagohf");
+
+            //Assert.
+
+        }
+
+        [TestMethod]
+        [ExpectedExceptionWithMessage(typeof(BusinessException), ExpectedMessage = "Arquivo foi processado, mas não possui dados para análise;")]
+        public async Task Test_AnalyseAsync_InvalidPostProcessing_NoDataInFile()
+        {
+            //Arrange.
+            CreateRaceDTO createRaceDTO = new CreateRaceDTO()
+            {
+                Date = DateTime.Now,
+                Description = "Descrição",
+                TotalLaps = 10,
+                RaceTypeId = 1
+            };
+
+            FileDTO fileDTO = new FileDTO()
+            {
+                Name = "Arquivo teste",
+                Content = new MemoryStream(new byte[] { 125, 141, 13, 27 }),
+                ContentType = "text/plain",
+                Extension = "txt"
+            };
+
+            //Mockar query para o tipo de corrida.
+            var raceTypeByIdQuery = new Query<RaceType>();
+            this._raceTypeQueryMock.Setup(x => x.ById(createRaceDTO.RaceTypeId))
+                .Returns(raceTypeByIdQuery);
+
+            //Mockar retorno do repositório quando usamos a query criada.
+            this._raceTypeRepositoryMock
+               .Setup(rep => rep.Exists(It.Is<Query<RaceType>>(q => q.Equals(raceTypeByIdQuery))))
+               .Returns(true);
+
+            //Mockar mensagem, status do leitor de arquivo e coleção de voltas lidas.
+            this._raceFileReaderMock.Setup(x => x.ErrorMessage)
+                .Returns(string.Empty);
+
+            this._raceFileReaderMock.Setup(x => x.Success)
+                .Returns(true);
+
+            this._raceFileReaderMock.Setup(x => x.Results)
+              .Returns(Enumerable.Empty<Lap>());
+
+            //Mockar chamada pro leitor de arquivos.
+            this._raceFileReaderMock.Setup(x => x.Read(It.IsAny<Stream>()))
+                .Returns(Task.CompletedTask);
+
+            //Act.
+            await this._raceService.AnalyseAsync(createRaceDTO, fileDTO, "yagohf");
+
+            //Assert.
+
+        }
+
+        [TestMethod]
+        public async Task Test_AnalyseAsync_InvalidPostProcessing_TwoDifferentDriversWithSameNumber()
+        {
+            //Arrange.
+            CreateRaceDTO createRaceDTO = new CreateRaceDTO()
+            {
+                Date = DateTime.Now,
+                Description = "Descrição",
+                TotalLaps = 10,
+                RaceTypeId = 1
+            };
+
+            FileDTO fileDTO = new FileDTO()
+            {
+                Name = "Arquivo teste",
+                Content = new MemoryStream(new byte[] { 125, 141, 13, 27 }),
+                ContentType = "text/plain",
+                Extension = "txt"
+            };
+
+            List<Lap> resultsMock = new List<Lap>()
+            {
+                new Lap() { DriverNumber = 10, DriverName = "F. Alonso" },
+                new Lap() { DriverNumber = 10, DriverName = "F. Massa" }
+            };
+
+            //Mockar query para o tipo de corrida.
+            var raceTypeByIdQuery = new Query<RaceType>();
+            this._raceTypeQueryMock.Setup(x => x.ById(createRaceDTO.RaceTypeId))
+                .Returns(raceTypeByIdQuery);
+
+            //Mockar retorno do repositório quando usamos a query criada.
+            this._raceTypeRepositoryMock
+               .Setup(rep => rep.Exists(It.Is<Query<RaceType>>(q => q.Equals(raceTypeByIdQuery))))
+               .Returns(true);
+
+            //Mockar mensagem, status do leitor de arquivo e coleção de voltas lidas.
+            this._raceFileReaderMock.Setup(x => x.ErrorMessage)
+                .Returns(string.Empty);
+
+            this._raceFileReaderMock.Setup(x => x.Success)
+                .Returns(true);
+
+            this._raceFileReaderMock.Setup(x => x.Results)
+              .Returns(resultsMock);
+
+            //Mockar chamada pro leitor de arquivos.
+            this._raceFileReaderMock.Setup(x => x.Read(It.IsAny<Stream>()))
+                .Returns(Task.CompletedTask);
+
+            string exceptionMessage = null;
+            //Act.
+            try
+            {
+                await this._raceService.AnalyseAsync(createRaceDTO, fileDTO, "yagohf");
+            }
+            catch (Exception ex)
+            {
+                exceptionMessage = ex.Message;
+            }
+
+            //Assert.
+            Assert.IsNotNull(exceptionMessage);
+            Assert.IsTrue(exceptionMessage.StartsWith("Existem pilotos diferentes com mesmo número:"));
+            Assert.IsTrue(exceptionMessage.Contains($"Número: {resultsMock.First().DriverNumber} / Pilotos: { string.Join(",", resultsMock.Select(x => x.DriverName)) }"));
+        }
+
+        [TestMethod]
+        public async Task Test_AnalyseAsync_InvalidPostProcessing_RanTheSameLapTwice()
+        {
+            //Arrange.
+            CreateRaceDTO createRaceDTO = new CreateRaceDTO()
+            {
+                Date = DateTime.Now,
+                Description = "Descrição",
+                TotalLaps = 10,
+                RaceTypeId = 1
+            };
+
+            FileDTO fileDTO = new FileDTO()
+            {
+                Name = "Arquivo teste",
+                Content = new MemoryStream(new byte[] { 125, 141, 13, 27 }),
+                ContentType = "text/plain",
+                Extension = "txt"
+            };
+
+            List<Lap> resultsMock = new List<Lap>()
+            {
+                new Lap() { DriverNumber = 10, DriverName = "F. Alonso", Number = 1 },
+                new Lap() { DriverNumber = 10, DriverName = "F. Alonso", Number = 1 }
+            };
+
+            //Mockar query para o tipo de corrida.
+            var raceTypeByIdQuery = new Query<RaceType>();
+            this._raceTypeQueryMock.Setup(x => x.ById(createRaceDTO.RaceTypeId))
+                .Returns(raceTypeByIdQuery);
+
+            //Mockar retorno do repositório quando usamos a query criada.
+            this._raceTypeRepositoryMock
+               .Setup(rep => rep.Exists(It.Is<Query<RaceType>>(q => q.Equals(raceTypeByIdQuery))))
+               .Returns(true);
+
+            //Mockar mensagem, status do leitor de arquivo e coleção de voltas lidas.
+            this._raceFileReaderMock.Setup(x => x.ErrorMessage)
+                .Returns(string.Empty);
+
+            this._raceFileReaderMock.Setup(x => x.Success)
+                .Returns(true);
+
+            this._raceFileReaderMock.Setup(x => x.Results)
+              .Returns(resultsMock);
+
+            //Mockar chamada pro leitor de arquivos.
+            this._raceFileReaderMock.Setup(x => x.Read(It.IsAny<Stream>()))
+                .Returns(Task.CompletedTask);
+
+            string exceptionMessage = null;
+            //Act.
+            try
+            {
+                await this._raceService.AnalyseAsync(createRaceDTO, fileDTO, "yagohf");
+            }
+            catch (Exception ex)
+            {
+                exceptionMessage = ex.Message;
+            }
+
+            //Assert.
+            Assert.IsNotNull(exceptionMessage);
+            Assert.IsTrue(exceptionMessage.StartsWith("Existem voltas repetidas para o mesmo piloto:"));
+            Assert.IsTrue(exceptionMessage.Contains($"Piloto: {resultsMock.First().DriverNumber} / Volta: { resultsMock.First().Number }"));
+        }
+
+        [TestMethod]
+        public async Task Test_AnalyseAsync_Valid()
+        {
+            //Arrange.
+            CreateRaceDTO createRaceDTO = new CreateRaceDTO()
+            {
+                Date = DateTime.Now.Date,
+                Description = "Race Unit Test",
+                TotalLaps = 1,
+                RaceTypeId = 1
+            };
+
+            FileDTO fileDTO = new FileDTO()
+            {
+                Name = "Arquivo teste",
+                Content = new MemoryStream(new byte[] { 125, 141, 13, 27 }),
+                ContentType = "text/plain",
+                Extension = "txt"
+            };
+
+            List<Lap> resultsMock = new List<Lap>()
+            {
+                new Lap() { DriverNumber = 10, DriverName = "F. Alonso", Number = 1 },
+                new Lap() { DriverNumber = 11, DriverName = "F. Massa", Number = 1 }
+            };
+
+            //Mockar query para o tipo de corrida.
+            var raceTypeByIdQuery = new Query<RaceType>();
+            this._raceTypeQueryMock.Setup(x => x.ById(createRaceDTO.RaceTypeId))
+                .Returns(raceTypeByIdQuery);
+
+            //Mockar retorno do repositório quando usamos a query criada.
+            this._raceTypeRepositoryMock
+               .Setup(rep => rep.Exists(It.Is<Query<RaceType>>(q => q.Equals(raceTypeByIdQuery))))
+               .Returns(true);
+
+            //Mockar mensagem, status do leitor de arquivo e coleção de voltas lidas.
+            this._raceFileReaderMock.Setup(x => x.ErrorMessage)
+                .Returns(string.Empty);
+
+            this._raceFileReaderMock.Setup(x => x.Success)
+                .Returns(true);
+
+            this._raceFileReaderMock.Setup(x => x.Results)
+              .Returns(resultsMock);
+
+            //Mockar chamada pro leitor de arquivos.
+            this._raceFileReaderMock.Setup(x => x.Read(It.IsAny<Stream>()))
+                .Returns(Task.CompletedTask);
+
+            //Mockar query para o usuário por login.
+            User userMock = new User()
+            {
+                Id = 1,
+                Login = "yagohf"
+            };
+            var userByLoginQuery = new Query<User>();
+            this._userQueryMock.Setup(x => x.ByLogin(userMock.Login))
+                .Returns(userByLoginQuery);
+
+            //Mockar retorno do repositório quando usamos a query criada.
+            this._userRepositoryMock
+               .Setup(rep => rep.GetSingleAsync(It.Is<Query<User>>(q => q.Equals(userByLoginQuery))))
+               .Returns(Task.FromResult(userMock));
+
+            //Mockar inserts.
+            this._raceRepositoryMock.Setup(x => x.InsertAsync(It.IsAny<Race>()))
+                .Returns(Task.CompletedTask);
+
+            this._lapRepositoryMock.Setup(x => x.InsertAsync(It.IsAny<Lap>()))
+                .Returns(Task.CompletedTask);
+
+            this._driverResultRepositoryMock.Setup(x => x.InsertAsync(It.IsAny<DriverResult>()))
+                .Returns(Task.CompletedTask);
+
+            #region [ Preparar cenário do GetResultsById ]
+
+            Race raceMock = new Race()
+            {
+                Date = DateTime.Now.Date,
+                Description = "Race Unit Test",
+                RaceTypeId = 1,
+                TotalLaps = 1,
+                UploadDate = DateTime.Now.Date,
+                Uploader = new User()
+                {
+                    Id = 1,
+                    Login = "yagohf",
+                    Name = "Yago",
+                    Password = "123mudar"
+                }
+            };
+
+            //Mockar query.
+            var raceByIdQuery = new Query<Race>();
+            this._raceQueryMock.Setup(x => x.ById(raceMock.Id))
+                .Returns(raceByIdQuery);
+
+            //Mockar retorno do repositório quando usamos a query criada.
+            this._raceRepositoryMock
+               .Setup(rep => rep.GetSingleAsync(It.Is<IQuery<Race>>(q => q.Equals(raceByIdQuery))))
+               .Returns(Task.FromResult(raceMock));
+
+            List<DriverResult> driverResultsMock = new List<DriverResult>()
+            {
+                new DriverResult()
+                {
+                    Id = 1,
+                    AverageSpeed = 10,
+                    BestLap = TimeSpan.FromSeconds(10),
+                    DriverName = "F. Alonso",
+                    DriverNumber = 10,
+                    Gap = null,
+                    Laps = 1,
+                    Position = 1,
+                    RaceId = raceMock.Id,
+                    TotalRaceTime = TimeSpan.FromSeconds(10)
+                },
+                new DriverResult()
+                {
+                    Id = 2,
+                    AverageSpeed = 8,
+                    BestLap = TimeSpan.FromSeconds(15),
+                    DriverName = "F. Massa",
+                    DriverNumber = 11,
+                    Gap = TimeSpan.FromSeconds(5),
+                    Laps = 1,
+                    Position = 1,
+                    RaceId = raceMock.Id,
+                    TotalRaceTime = TimeSpan.FromSeconds(15)
+                }
+            };
+
+            //Mockar query de corrida por id.
+            var driverResultsByRaceIdQuery = new Query<DriverResult>();
+            this._driverResultQueryMock.Setup(x => x.ByRace(raceMock.Id))
+                .Returns(driverResultsByRaceIdQuery);
+
+            //Mockar retorno do repositório quando usamos a query criada.
+            this._driverResultRepositoryMock
+               .Setup(rep => rep.ListAsync(It.Is<IQuery<DriverResult>>(q => q.Equals(driverResultsByRaceIdQuery))))
+               .Returns(Task.FromResult(driverResultsMock.AsEnumerable()));
+
+            #endregion
+
+            //Act.
+            var result = await this._raceService.AnalyseAsync(createRaceDTO, fileDTO, userMock.Login);
+
+            //Assert.
+            Assert.IsNotNull(result);
         }
     }
 }

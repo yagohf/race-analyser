@@ -65,8 +65,8 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
         public async Task<RaceResultDTO> AnalyseAsync(CreateRaceDTO createData, FileDTO file, string uploader)
         {
             //Validar minimamente os dados de input.
-            if (createData == null || uploader == null)
-                throw new Exception("Dados inválidos para análise.");
+            if (createData == null || file == null || uploader == null)
+                throw new BusinessException("Dados inválidos para análise");
             else if (!this.ValidateRequiredFields(createData, file, out string requiredFieldsErrorMessage))
                 throw new BusinessException(requiredFieldsErrorMessage);
 
@@ -163,7 +163,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
             {
                 if (this._raceFileReader.Results == null || !this._raceFileReader.Results.Any())
                 {
-                    postProcessingErrorMessage = "Arquivo não possui dados para análise;";
+                    postProcessingErrorMessage = "Arquivo foi processado, mas não possui dados para análise;";
                 }
                 else
                 {
@@ -249,6 +249,11 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
 
         private IEnumerable<DriverResult> ProcessDriverResults(IEnumerable<Lap> laps)
         {
+            /*
+             * TODO - O SRP está sendo violado nesse método ! 
+             * Esse método poderia ser movido para uma classe especializada em calcular resultados de 
+             * corridas a partir das voltas, podendo assim ser testado unitariamente.
+             */
             List<DriverResult> driverResults = new List<DriverResult>();
 
             var lapGrouping = from l in laps
@@ -284,12 +289,12 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
             requiredFieldsErrorMessage = string.Empty;
             if (string.IsNullOrWhiteSpace(createData.Description))
                 requiredFieldsErrorMessage += "Descrição não informada;";
-            else if (createData.TotalLaps < 1)
+            if (createData.TotalLaps < 1)
                 requiredFieldsErrorMessage += "Número de voltas inválido;";
-            else if (file.Content == null || file.Content.Length == 0) //TODO - tratar extensões.
+            if (file.Content == null || file.Content.Length == 0) //TODO - tratar extensões.
                 requiredFieldsErrorMessage += "Arquivo inválido para análise;";
-            else if (!this._raceTypeRepository.Exists(this._raceTypeQuery.ById(createData.RaceTypeId)))
-                requiredFieldsErrorMessage += "Tipo de corrida inválido.";
+            if (!this._raceTypeRepository.Exists(this._raceTypeQuery.ById(createData.RaceTypeId)))
+                requiredFieldsErrorMessage += "Tipo de corrida inválido;";
 
             return string.IsNullOrEmpty(requiredFieldsErrorMessage);
         }
