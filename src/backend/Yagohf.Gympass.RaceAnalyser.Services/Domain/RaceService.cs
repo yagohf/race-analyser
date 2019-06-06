@@ -87,6 +87,12 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
 
         public async Task<FileDTO> GetExampleFileAsync()
         {
+            /*
+             * TODO - esse método poderia ser melhorado. Em vez de ler o arquivo do disco,
+             * seria mais interessante gerar um arquivo de exemplo com as configurações presentes
+             * no appsettings.json referentes à posição e tamanho dos campos. Dessa forma, se mudarmos
+             * o layout do arquivo, não temos que alterar o arquivo de "exemplo".
+             */
             FileDTO file = new FileDTO();
             file.ContentType = "text/plain";
             file.Extension = "txt";
@@ -113,7 +119,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
             RaceResultDTO result = new RaceResultDTO();
             var race = await this._raceRepository.GetSingleAsync(this._raceQuery.ById(id));
             var results = await this._driverResultRepository.ListAsync(this._driverResultQuery.ByRace(id));
-            var winner = results.First();
+            var winner = results.First(); //TODO - não há critério de desempate. Como proceder ?
             var bestLap = results.OrderBy(x => x.BestLap).ThenBy(x => x.Position).Select(x => new BestLapDTO()
             {
                 Driver = $"{x.DriverNumber} - {x.DriverName}",
