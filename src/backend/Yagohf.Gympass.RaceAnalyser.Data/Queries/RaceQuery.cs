@@ -18,7 +18,8 @@ namespace Yagohf.Gympass.RaceAnalyser.Data.Queries
                 .Filter(x => string.IsNullOrEmpty(description) || x.Description.Contains(description))
                 .AddInclude(x => x.Uploader)
                 .AddInclude(x => x.RaceType)
-                .AddInclude(x => x.DriverResults);
+                .AddInclude(x => x.DriverResults)
+                .SortByDescending(x=> x.Date);
         }
     }
 }

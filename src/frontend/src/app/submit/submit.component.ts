@@ -76,4 +76,13 @@ export class SubmitComponent implements OnInit {
       this.raceTypes = data;
     });
   }
+
+  downloadExample() {
+    this.raceService.downloadExample().subscribe(data => {
+      const blob = new Blob(["\ufeff", data], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      window.open(url);
+      window.URL.revokeObjectURL(url);
+    });
+  }
 }

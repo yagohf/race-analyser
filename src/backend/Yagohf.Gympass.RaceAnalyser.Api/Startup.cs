@@ -47,13 +47,17 @@ namespace Yagohf.Gympass.RaceAnalyser.Api
             //Adicionar injeção de dependência delegada para outra camada.
             services.AddInjectorBootstrapper(this.Configuration);
 
-            //Setar configurações fortemente tipadas.
+            //Configuação fortemente tipada de autenticação.
             var authSection = Configuration.GetSection("Authentication");
             services.Configure<AuthenticationSettings>(authSection);
 
-            //Setar configurações fortemente tipadas.
+            //Configuação fortemente tipada do arquivo de corrida.
             var raceFileSettingsSection = Configuration.GetSection("RaceFile");
             services.Configure<RaceFileSettings>(raceFileSettingsSection);
+
+            //Configuação fortemente tipada de fileserver.
+            var fileServerSettingsSection = Configuration.GetSection("FileServer");
+            services.Configure<FileServerSettings>(fileServerSettingsSection);
 
             //Configurar autenticação com JWT.
             AuthenticationSettings authSettings = authSection.Get<AuthenticationSettings>();

@@ -60,4 +60,12 @@ export class RaceService {
             }
         }));
     }
+
+    downloadExample(): Observable<any> {
+        const url = `${environment.apiAddress}/races/example`;
+        return this.http.get(url, { responseType: 'arraybuffer' })
+            .pipe(
+                tap(_ => console.log(_))
+            );
+    }
 }

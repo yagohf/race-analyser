@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
 using Yagohf.Gympass.RaceAnalyser.Data.Interface.Queries;
 using Yagohf.Gympass.RaceAnalyser.Data.Interface.Repositories;
+using Yagohf.Gympass.RaceAnalyser.Infrastructure.Configuration;
 using Yagohf.Gympass.RaceAnalyser.Infrastructure.Exception;
 using Yagohf.Gympass.RaceAnalyser.Infrastructure.Extensions;
 using Yagohf.Gympass.RaceAnalyser.Infrastructure.Model;
@@ -29,6 +32,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
         private readonly ILapRepository _lapRepository;
         private readonly IDriverResultRepository _driverResultRepository;
         private readonly IDriverResultQuery _driverResultQuery;
+        private readonly FileServerSettings _fileServerSettings;
         private readonly IMapper _mapper;
 
         public RaceService(IRaceFileReader raceFileProcessor,
@@ -41,6 +45,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
                            ILapRepository lapRepository,
                            IDriverResultRepository driverResultRepository,
                            IDriverResultQuery driverResultQuery,
+                           IOptions<FileServerSettings> options,
                            IMapper mapper)
         {
             this._raceFileReader = raceFileProcessor;
@@ -53,6 +58,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
             this._lapRepository = lapRepository;
             this._driverResultRepository = driverResultRepository;
             this._driverResultQuery = driverResultQuery;
+            this._fileServerSettings = options.Value;
             this._mapper = mapper;
         }
 
@@ -81,7 +87,19 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
 
         public async Task<FileDTO> GetExampleFileAsync()
         {
-            throw new NotImplementedException();
+            FileDTO file = new FileDTO();
+            file.ContentType = "text/plain";
+            file.Extension = "txt";
+            file.Name = "EXAMPLE.txt";
+            file.Content = new MemoryStream();
+
+            using (FileStream fs = new FileStream(this._fileServerSettings.Path, FileMode.Open, FileAccess.Read))
+            {
+                await fs.CopyToAsync(file.Content);
+                file.Content.Position = 0;
+            }
+
+            return file;
         }
 
         public async Task<IEnumerable<RaceTypeDTO>> GetRaceTypes()
@@ -96,7 +114,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
             var race = await this._raceRepository.GetSingleAsync(this._raceQuery.ById(id));
             var results = await this._driverResultRepository.ListAsync(this._driverResultQuery.ByRace(id));
             var winner = results.First();
-            var bestLap = results.OrderBy(x => x.BestLap).Select(x => new BestLapDTO()
+            var bestLap = results.OrderBy(x => x.BestLap).ThenBy(x => x.Position).Select(x => new BestLapDTO()
             {
                 Driver = $"{x.DriverNumber} - {x.DriverName}",
                 Time = x.BestLap
@@ -127,7 +145,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
             }
 
             return listagem.Map<Race, RaceSummaryDTO>(this._mapper);
-        }        
+        }
 
         #region [ Helpers ]
 
@@ -268,7 +286,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
                 requiredFieldsErrorMessage += "Tipo de corrida inválido.";
 
             return string.IsNullOrEmpty(requiredFieldsErrorMessage);
-        }       
+        }
 
         #endregion
     }

@@ -21,9 +21,9 @@
             <table id="table-races-summary" class="table table-bordered">
                 <thead>
                     <tr>
+                        <th>Data de realização</th>
                         <th>Tipo</th>
                         <th>Descrição</th>
-                        <th>Data</th>
                         <th>Vencedor</th>
                         <th>Enviada por</th>
                         <th>Ações</th>
@@ -31,14 +31,14 @@
                 </thead>
                 <tbody *ngIf="summaries.list && summaries.list.length > 0">
                     <tr *ngFor="let race of summaries.list">
+                        <td class="text-center" style="width: 10%">
+                            {{ race.raceDate | date:'dd/MM/yyyy' }}
+                        </td>
                         <td style="width: 10%">
                             {{ race.raceTypeDescription }}
                         </td>
                         <td style="width: 30%">
                             {{ race.raceDescription }}
-                        </td>
-                        <td class="text-center" style="width: 10%">
-                            {{ race.raceDate | date:'dd/MM/yyyy' }}
                         </td>
                         <td style="width: 30%">
                             {{ race.winner }}
