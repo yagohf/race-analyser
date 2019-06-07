@@ -38,6 +38,7 @@ namespace Yagohf.Gympass.RaceAnalyser.UnitTests.Services.Domain
         private readonly Mock<IDriverResultRepository> _driverResultRepositoryMock;
         private readonly Mock<IDriverResultQuery> _driverResultQueryMock;
         private readonly Mock<IOptions<FileServerSettings>> _fileServerSettingsOptionsMock;
+        private readonly Mock<IOptions<RaceFileSettings>> _raceFileSettingsOptionsMock;
         private readonly IMapper _mapper;
         private RaceService _raceService;
 
@@ -59,6 +60,12 @@ namespace Yagohf.Gympass.RaceAnalyser.UnitTests.Services.Domain
             FileServerSettings fileServerSettings = new FileServerSettings();
             TestUtil.GetConfiguration().GetSection("FileServer").Bind(fileServerSettings);
             this._fileServerSettingsOptionsMock.Setup(x => x.Value).Returns(fileServerSettings);
+
+            //Configurar RaceFileSettings.
+            this._raceFileSettingsOptionsMock = new Mock<IOptions<RaceFileSettings>>();
+            RaceFileSettings raceFileSettings = new RaceFileSettings();
+            TestUtil.GetConfiguration().GetSection("RaceFile").Bind(raceFileSettings);
+            this._raceFileSettingsOptionsMock.Setup(x => x.Value).Returns(raceFileSettings);
 
             MapperConfiguration mapperConfiguration = new MapperConfiguration(mConfig =>
             {
@@ -83,6 +90,7 @@ namespace Yagohf.Gympass.RaceAnalyser.UnitTests.Services.Domain
                 this._driverResultRepositoryMock.Object,
                 this._driverResultQueryMock.Object,
                 this._fileServerSettingsOptionsMock.Object,
+                this._raceFileSettingsOptionsMock.Object,
                 this._mapper
                 );
         }
@@ -413,6 +421,45 @@ namespace Yagohf.Gympass.RaceAnalyser.UnitTests.Services.Domain
             this._raceTypeRepositoryMock
                .Setup(rep => rep.Exists(It.Is<IQuery<RaceType>>(q => q.Equals(raceTypeByIdQuery))))
                .Returns(false);
+
+
+            //Act.
+            await this._raceService.AnalyseAsync(createRaceDTO, fileDTO, "yagohf");
+
+            //Assert.
+
+        }
+
+        [TestMethod]
+        [ExpectedExceptionWithMessage(typeof(BusinessException), ExpectedMessage = "Arquivo inválido para análise;")]
+        public async Task Test_AnalyseAsync_InvalidFileContent()
+        {
+            //Arrange.
+            CreateRaceDTO createRaceDTO = new CreateRaceDTO()
+            {
+                Date = DateTime.Now,
+                Description = "Teste",
+                TotalLaps = 1,
+                RaceTypeId = 1
+            };
+
+            FileDTO fileDTO = new FileDTO()
+            {
+                Name = "Teste",
+                Content = new MemoryStream(new byte[] { 125, 141, 13, 27 }),
+                ContentType = "application/octet-stream",
+                Extension = "pdf"
+            };
+
+            //Mockar query para o tipo de corrida.
+            var raceTypeByIdQuery = new Query<RaceType>();
+            this._raceTypeQueryMock.Setup(x => x.ById(createRaceDTO.RaceTypeId))
+                .Returns(raceTypeByIdQuery);
+
+            //Mockar retorno do repositório quando usamos a query criada.
+            this._raceTypeRepositoryMock
+               .Setup(rep => rep.Exists(It.Is<IQuery<RaceType>>(q => q.Equals(raceTypeByIdQuery))))
+               .Returns(true);
 
 
             //Act.

@@ -33,6 +33,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
         private readonly IDriverResultRepository _driverResultRepository;
         private readonly IDriverResultQuery _driverResultQuery;
         private readonly FileServerSettings _fileServerSettings;
+        private readonly RaceFileSettings _raceFileSettings;
         private readonly IMapper _mapper;
 
         public RaceService(IRaceFileReader raceFileProcessor,
@@ -45,7 +46,8 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
                            ILapRepository lapRepository,
                            IDriverResultRepository driverResultRepository,
                            IDriverResultQuery driverResultQuery,
-                           IOptions<FileServerSettings> options,
+                           IOptions<FileServerSettings> fileServerOptions,
+                           IOptions<RaceFileSettings> raceFileOptions,
                            IMapper mapper)
         {
             this._raceFileReader = raceFileProcessor;
@@ -58,7 +60,8 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
             this._lapRepository = lapRepository;
             this._driverResultRepository = driverResultRepository;
             this._driverResultQuery = driverResultQuery;
-            this._fileServerSettings = options.Value;
+            this._fileServerSettings = fileServerOptions.Value;
+            this._raceFileSettings = raceFileOptions.Value;
             this._mapper = mapper;
         }
 
@@ -293,7 +296,7 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
                 requiredFieldsErrorMessage += "Descrição não informada;";
             if (createData.TotalLaps < 1)
                 requiredFieldsErrorMessage += "Número de voltas inválido;";
-            if (file.Content == null || file.Content.Length == 0) //TODO - tratar extensões.
+            if (file.Content == null || file.Content.Length == 0 || this._raceFileSettings.AllowedContentType != file.ContentType)
                 requiredFieldsErrorMessage += "Arquivo inválido para análise;";
             if (!this._raceTypeRepository.Exists(this._raceTypeQuery.ById(createData.RaceTypeId)))
                 requiredFieldsErrorMessage += "Tipo de corrida inválido;";

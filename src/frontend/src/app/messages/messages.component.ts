@@ -13,11 +13,14 @@ export class MessagesComponent implements OnInit {
   subscription: Subscription;
   private messageTypes = EnumMessageType; //Associar membro ao ENUM para poder bindar no template.
   messages: any[] = [];
-  
+
   constructor(private mensagensService: MessageService) { }
 
   ngOnInit() {
     this.subscription = this.mensagensService.getMessages().subscribe(msg => {
+      while (msg.text.indexOf(';') > -1) {
+        msg.text = msg.text.replace(';', '<br />');
+      }
       if (!this.messages.find(x => x.text == msg.text)) {
         let newMessage = { id: Guid.newGuid(), text: msg.text, type: msg.type };
         this.messages.push(newMessage);
@@ -34,5 +37,5 @@ export class MessagesComponent implements OnInit {
     if (messageToRemove) {
       this.messages.splice(this.messages.indexOf(messageToRemove), 1);
     }
-  } 
+  }
 }

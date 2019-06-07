@@ -2,6 +2,7 @@
 {
     public class RaceFileSettings
     {
+        public string AllowedContentType { get; set; }
         public int LineMinLength { get; set; }
         public int LineMaxLength { get; set; }
         public RaceFileSettingsItem Date { get; set; }
