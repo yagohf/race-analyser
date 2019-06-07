@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Transactions;
 using Yagohf.Gympass.RaceAnalyser.Data.Interface.Queries;
@@ -102,10 +103,32 @@ namespace Yagohf.Gympass.RaceAnalyser.Services.Domain
             file.Name = "EXAMPLE.txt";
             file.Content = new MemoryStream();
 
-            using (FileStream fs = new FileStream(this._fileServerSettings.Path, FileMode.Open, FileAccess.Read))
+            if (this._fileServerSettings.Type == "file")
             {
-                await fs.CopyToAsync(file.Content);
-                file.Content.Position = 0;
+                using (FileStream fs = new FileStream(this._fileServerSettings.Path, FileMode.Open, FileAccess.Read))
+                {
+                    await fs.CopyToAsync(file.Content);
+                    file.Content.Position = 0;
+                }
+            }
+            else
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    HttpResponseMessage response = await client.GetAsync(this._fileServerSettings.Path);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        System.Net.Http.HttpContent content = response.Content;
+                        var contentStream = await content.ReadAsStreamAsync();
+                        await contentStream.CopyToAsync(file.Content);
+                        file.Content.Position = 0;
+                    }
+                    else
+                    {
+                        throw new FileNotFoundException("Impossível obter arquivo do servidor");
+                    }
+                }
             }
 
             return file;
