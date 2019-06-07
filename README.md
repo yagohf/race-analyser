@@ -16,7 +16,7 @@ Esse projeto consiste em uma aplicação que possibilita submeter arquivos com r
 ## Executando a aplicação
 - Você precisará ter instalado em sua máquina o SDK e o runtime do .NET Core 2.2, que podem ser obtidos [**aqui**](https://dotnet.microsoft.com/download/dotnet-core/2.2).
 - Além disso, precisará ter instalado o Node.js e o NPM (gerenciador de pacotes), que podem ser obtidos [**aqui**](https://nodejs.org/en/).
-- Uma vez instalados, navegue até a raiz da aplicação e execute os seguintes comandos (pode copiar e colar em um PowerShell):
+- Uma vez instalados, navegue até a raiz da aplicação e execute os seguintes comandos:
 
 ```
 # Navegar até a pasta onde estão os fontes
