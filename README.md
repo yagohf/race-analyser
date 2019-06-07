@@ -9,7 +9,7 @@ Esse projeto consiste em uma aplicação que possibilita submeter arquivos com r
 - A pasta [frontend](./src/frontend) contém uma aplicação cliente desenvolvida em [Angular 7](https://angular.io/).
 
 ## Ajustes necessários para executar o projeto
-- Substituir a connection string no arquivo [appsettings.json](.src/backend/Yagohf.Gympass.RaceAnalyser.Api/appsettings.json) pela conexão do seu banco de dados.
+- Substituir a connection string no arquivo [appsettings.json](./src/backend/Yagohf.Gympass.RaceAnalyser.Api/appsettings.json) pela conexão do seu banco de dados.
 - Substituir a URL da API no arquivo [environment.ts](./src/frontend/src/environments/environment.ts) pela URL em que sua API encontra-se rodando.
 
 ## Executando a aplicação
