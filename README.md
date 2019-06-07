@@ -10,6 +10,7 @@ Esse projeto consiste em uma aplicação que possibilita submeter arquivos com r
 
 ## Ajustes necessários para executar o projeto
 - Substituir a connection string no arquivo [appsettings.json](./src/backend/Yagohf.Gympass.RaceAnalyser.Api/appsettings.json) pela conexão do seu banco de dados.
+- Substituir o caminho para o arquivo de exemplo de upload no arquivo [appsettings.json](./src/backend/Yagohf.Gympass.RaceAnalyser.Api/appsettings.json), na linha 8. Sugiro apontar para o caminho no qual encontra-se o arquivo [EXAMPLE.txt](.src/simulations/EXAMPLE.txt).
 - Substituir a URL da API no arquivo [environment.ts](./src/frontend/src/environments/environment.ts) pela URL em que sua API encontra-se rodando.
 
 ## Executando a aplicação
