@@ -22,6 +22,9 @@ Esse projeto consiste em uma aplicação que possibilita submeter arquivos com r
 # Navegar até a pasta onde estão os fontes
 cd src
 
+# Instalar o Angular CLI
+npm install -g @angular/cli
+
 # Restaurar pacotes para rodar a aplicação como um todo
 npm install
 
