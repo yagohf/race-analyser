@@ -13,15 +13,18 @@ namespace Yagohf.Gympass.RaceAnalyser.Api
         private const string CONFIG_FILE_NAME = "appsettings.json";
         private const string LOGDB_CONNECTION_STRING = "LogDB";
 
-        public static IConfiguration Configuration { get; } = new ConfigurationBuilder()
-          .SetBasePath(Directory.GetCurrentDirectory())
-          .AddJsonFile(CONFIG_FILE_NAME, optional: false, reloadOnChange: true)
-          .AddEnvironmentVariables()
-          .Build();
+        public static IConfiguration Configuration { get; private set; }
 
 
         public static void Main(string[] args)
         {
+            Configuration = new ConfigurationBuilder()
+                .AddCommandLine(args)
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile(CONFIG_FILE_NAME, optional: false, reloadOnChange: true)
+                .AddEnvironmentVariables()
+                .Build();
+
             ConfigSerilog();
 
             try

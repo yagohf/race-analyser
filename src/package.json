@@ -1,7 +1,10 @@
 {
     "scripts": {
-        "start": "concurrently \"npm run serve-api\" \"npm run serve\"",
-        "serve": "cd frontend && ng serve",
-        "serve-api": "cd backend && nodemon server.js"
+        "start": "concurrently \"npm run serve-api\" \"npm run serve-front\"",
+        "serve-front": "cd frontend && ng serve",
+        "serve-api": "dotnet run --project .\\backend\\Yagohf.Gympass.RaceAnalyser.Api\\Yagohf.Gympass.RaceAnalyser.Api.csproj --urls=http://localhost:57856"
+    },
+    "dependencies": {
+        "concurrently": "^4.1.0"
     }
 }
